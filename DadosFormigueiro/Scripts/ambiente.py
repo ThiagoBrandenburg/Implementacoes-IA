@@ -1,4 +1,3 @@
-from cmath import sqrt
 from math import sqrt
 from random import randrange, random
 
@@ -9,7 +8,7 @@ class Item:
     x: float
     y: float
     
-    def __init__(self, tupla: tuple[str, str, str]) -> None:
+    def __init__(self, tupla: tuple) -> None:
         self.x = float(tupla[0])
         self.y = float(tupla[1])
         self.tag = int(tupla[2])
@@ -179,11 +178,6 @@ class Agente:
     def distanciaEuclidiana(self, t1: tuple[int, int], t2: tuple[int, int] )-> float:
         return sqrt(pow(t1[0] -t2[0], 2) + pow(t1[1] - t2[1], 2))
     
-    def fatorS(self, vizinhanca: list[Celula])->int:
-        s = 0
-        for vizinho in vizinhanca:
-            if vizinho.temItem(): s+=1
-        return s
 
     def similaridadeDaVizinhanca(self, item: Item, visao:list[Celula], alpha: float)->float:
         similaridade = 0
@@ -192,8 +186,8 @@ class Agente:
                 subtrai = self.distanciaEuclidiana(item.tupla(), celula.item.tupla())/alpha
                 similaridade += 1.0 - subtrai
         fx = similaridade/len(visao)
-        if fx < 0.0:
-            return 0
+        if fx < 0.0: fx = 0.0
+        #print('f:', fx)
         return fx
 
     def tomadaDecisaoDados(self, vizinhos: list[Celula], visao: list[Celula], k1: int, k2: int, alpha: int):
@@ -210,8 +204,8 @@ class Agente:
 
     def tomadaDecisaoDadosFinal(self, vizinhos: list[Celula], visao: list[Celula], k2: int, alpha: int):
         if self.carregaItem() and (not self.posicao.temItem()):
-            chance = self.similaridadeDaVizinhanca(visao, alpha)
-            chanceLargar = pow(chance/ (k2 + chance), self.expoente)
+            chance = self.similaridadeDaVizinhanca(self.item, visao, alpha)
+            chanceLargar = pow(chance/ (k2 + chance), 2)
             if random() < chanceLargar: self.largar()
         self.passo(vizinhos)
 
@@ -226,6 +220,7 @@ class Ambiente:
     ALPHA = 'alpha'
     K1 = 'k1'
     K2 = 'k2'
+    LIMITANTE = 'limitante'
 
     def __init__(self,
                 dimensoesAmbiente = (30,30),
@@ -253,7 +248,7 @@ class Ambiente:
         self.mapa = [[Celula(posicao=(i,j)) for j in range(self.nLinhas)] for i in range(self.nColunas)]
     
 
-    def __init__(self, dicionario= {'dimensaoX':30, 'dimensaoY':30, 'numero_de_agentes':10, 'visao':1, 'alpha':1, 'k1': 0.5, 'k2': 0.5}) -> None:
+    def __init__(self, dicionario= {'dimensaoX':30, 'dimensaoY':30, 'numero_de_agentes':10, 'visao':1, 'alpha':1, 'k1': 0.5, 'k2': 0.5, 'limitante': 0.01}) -> None:
         self.nLinhas = dicionario[self.DIMENSAOX]
         self.nColunas = dicionario[self.DIMENSAOY]
         self.nAgentes = dicionario[self.NUMERO_DE_AGENTES]
@@ -261,9 +256,10 @@ class Ambiente:
         self.alpha = dicionario[self.ALPHA]
         self.k1 = dicionario[self.K1]
         self.k2 = dicionario[self.K2]
+        self.limitante = dicionario[self.LIMITANTE]
 
         self.listaItem = []
-        self.listaAgente = [Agente(self.nColunas, self.nLinhas, visao=self.alcanceVisaoAgente) for i in range(self.nAgentes)]
+        self.listaAgente = [Agente(self.nColunas, self.nLinhas, visao=self.alcanceVisaoAgente, limitante=self.limitante) for i in range(self.nAgentes)]
         self.mapa = [[Celula(posicao=(i,j)) for j in range(self.nLinhas)] for i in range(self.nColunas)]
 
 

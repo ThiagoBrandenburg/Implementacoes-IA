@@ -38,11 +38,11 @@ class Controle:
     
     def run(self):
         self.carregar()
-        print('a1')
+        print('(Controle) Configuracoes Carregadas')
         self.startR15Database()
-        print('a2')
+        print('(Controle) Dados Carregados')
         self.ambiente.inicia()
-        print('a3')
+        print('(Controle) Ambiente Inicializado')
         for i in range(self.configuracoes[self.ITERACOES]):
             self.ambiente.iteracao()
             self.exibicao.exibeFrame()
@@ -50,6 +50,21 @@ class Controle:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+        print('(Controle) Numero de Iteracoes Alcancado, entrando em modo de finalizacao')
+        while not self.ambiente.iteracaoFinal():
+            self.exibicao.exibeFrame()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+        print('(Controle) Execucao Finalizada')
+        while True:
+            self.exibicao.exibeFrame()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
 
 
 

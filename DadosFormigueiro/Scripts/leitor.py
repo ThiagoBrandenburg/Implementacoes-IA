@@ -27,10 +27,8 @@ class Leitor:
                 if not linha[0] == '#':
                     try:
                         l = linha.split()
-                        t = (l[0],l[1],l[2])
+                        t = (l[0].replace(',','.'), l[1].replace(',','.'), l[2].replace(',','.'))
+
                         itens.append(Item(t))
                     except: 'linha vazia'
         return itens
-
-
-

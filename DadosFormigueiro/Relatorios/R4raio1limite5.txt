@@ -8,4 +8,3 @@
  "k2": 0.2,
  "limitante": 0.05,
  "dados": "DadosFormigueiro/Databases/R4.txt"}
-

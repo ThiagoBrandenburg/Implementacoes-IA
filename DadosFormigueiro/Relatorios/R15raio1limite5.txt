@@ -3,9 +3,8 @@
  "dimensaoY": 50,
  "numero_de_agentes": 40,
  "visao": 1,
- "alpha": 28,
+ "alpha": 4,
  "k1": 0.1,
  "k2": 0.2,
  "limitante": 0.05,
- "dados": "DadosFormigueiro/Databases/R4.txt"}
-
+ "dados": "DadosFormigueiro/Databases/R15.txt"}

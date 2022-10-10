@@ -1,0 +1,5 @@
+para R4, precisamos de alphas 
+
+
+# media R15 = 4 ou 5 (7 ou 8 seria o certo)
+# media R4 (20 - -20) = 40/ 2 = 20 => 20² + 20² = 400 + 400 = raiz 800 = 28

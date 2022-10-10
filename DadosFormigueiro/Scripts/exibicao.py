@@ -27,7 +27,7 @@ class Exibicao:
         self.resolucaoTela = (self.ambiente.nLinhas*self.dimensaoYCelula, self.ambiente.nColunas*self.dimensaoXCelula)
         self.tela = pygame.display.set_mode(self.resolucaoTela)
         pygame.font.init()
-        self.fonte = pygame.font.SysFont('Arial',12)
+        self.fonte = pygame.font.SysFont('Arial',16)
         pygame.display.get_surface().fill(corFundo)
 
     def exibeRetangulo(self, x, y, cor):
@@ -64,6 +64,7 @@ class Exibicao:
 
 
     def exibeFrame(self):
+        self.tela.fill(self.corFundo)
         for x in range(self.ambiente.nLinhas):
             for y in range(self.ambiente.nColunas):
                 self.exibeCelula(x,y)
