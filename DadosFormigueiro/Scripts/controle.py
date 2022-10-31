@@ -43,16 +43,20 @@ class Controle:
         print('(Controle) Dados Carregados')
         self.ambiente.inicia()
         print('(Controle) Ambiente Inicializado')
+        contador = 0
         for i in range(self.configuracoes[self.ITERACOES]):
+            contador +=1
             self.ambiente.iteracao()
-            self.exibicao.exibeFrame()
+            if contador > 1000:
+                self.exibicao.exibeFrame()
+                contador = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
         print('(Controle) Numero de Iteracoes Alcancado, entrando em modo de finalizacao')
         while not self.ambiente.iteracaoFinal():
-            self.exibicao.exibeFrame()
+            #self.exibicao.exibeFrame()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
