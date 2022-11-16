@@ -2,5 +2,5 @@
  "grafico" : "padrao",
  "temperatura_inicial" : 50,
  "temperatura_final" : 1,
- "iteracoes" : 200000,
- "cooling" : 1}
+ "iteracoes" : 20000,
+ "cooling" : 5}

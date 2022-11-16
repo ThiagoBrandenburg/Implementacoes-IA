@@ -1,0 +1,6 @@
+{"pathDatabase" : "SA/Databases/kroA100.tsp.txt",
+ "grafico" : "boxplot",
+ "temperatura_inicial" : 5000,
+ "temperatura_final" : 1,
+ "iteracoes" : 50000,
+ "cooling" : 1}

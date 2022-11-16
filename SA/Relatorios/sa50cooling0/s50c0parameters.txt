@@ -1,0 +1,4 @@
+{"temperatura_inicial" : 50,
+ "temperatura_final" : 1,
+ "iteracoes" : 10000,
+ "cooling" : 0}

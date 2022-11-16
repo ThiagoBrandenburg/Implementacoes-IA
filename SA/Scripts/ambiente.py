@@ -90,10 +90,10 @@ class Ambiente:
         '''Causa uma pertubacao no caminhoAtual'''
         l = self.caminhoAtual.copy()
         for i in range(n):
-            a = randrange(len(l))
-            b = randrange(len(l))
+            a = randrange(1,len(l)-1)
+            b = randrange(1,len(l)-1)
             while a==b:
-                b = randrange(len(l))
+                b = randrange(1,len(l)-1)
             aux = l[a]
             l[a] = l[b]
             l[b] = aux
@@ -107,7 +107,14 @@ class Ambiente:
 
     def cooling3(self):
         a = (math.log(self.t_inicial - self.t_final))/(math.log(self.iteracoes))
-        self.t_atual = self.t_inicial - math.pow(self.i_atual, a)
+        self.t_atual = self.t_inicial - pow(self.i_atual, a)
+    
+    def cooling4(self):
+        self.t_atual = ((self.t_inicial - self.t_final)/(1 + math.pow(math.e, 0.3*(self.i_atual - self.iteracoes/2)))) + self.t_final
+    
+    def cooling5(self):
+        self.t_atual = (0.5*(self.t_inicial - self.t_final)) * (1 + math.cos((self.i_atual*math.pi)/self.iteracoes)) * (self.t_final)
+
 
     def set_cooling(self):
         if self.cooling == 0:
@@ -116,6 +123,10 @@ class Ambiente:
             self.cooling_func = self.cooling1
         elif self.cooling == 3:
             self.cooling_func = self.cooling3
+        elif self.cooling == 4:
+            self.cooling_func = self.cooling4
+        elif self.cooling == 5:
+            self.cooling_func = self.cooling5
 
     
 
@@ -133,10 +144,10 @@ class Ambiente:
             peso_novo_caminho = self.pesaCaminho(novo_caminho)
             delta = peso_novo_caminho - self.pesocaminhoAtual
             if delta < 0:
-                self.chance = math.pow(math.e, (-delta)/self.t_atual)
-                #print(' chance:',self.chance, ' t:',self.t_atual, ' delta:',delta, ' i:',self.i_atual, ' p_atual:',self.pesocaminhoAtual, ' p_novo:',peso_novo_caminho)
-                if random() <= self.chance:
-                    self.setCaminho(novo_caminho,peso_novo_caminho)
+                self.setCaminho(novo_caminho,peso_novo_caminho)
+            else:
+                self.chance = math.pow(math.e, (delta*-1)/self.t_atual)
+                if random() <= self.chance: self.setCaminho(novo_caminho,peso_novo_caminho)
             self.i_atual += 1
         return True
     
@@ -148,16 +159,17 @@ class Ambiente:
         ax1.set_xlabel('Iteração')
         ax1.set_ylabel('Peso do caminho')
         ax1.grid(True)
+        texto = '%0.2f' % self.historico[1][len(self.historico[1])-1]
+        ax1.annotate(texto,xy=(self.historico[0][len(self.historico[0])-1], self.historico[1][len(self.historico[1])-1]), xytext = (0,0), textcoords='offset points')
 
         ax2.plot(self.historico[0],self.historico[2])
         ax2.set_xlabel('Iteração')
-        ax2.set_ylabel('Peso do caminho')
+        ax2.set_ylabel('Temperatura')
         ax2.grid(True)
 
 
         fig.legend('Gráficos de desempenho e temperatura')
+        
 
         plt.show()
     
-
-

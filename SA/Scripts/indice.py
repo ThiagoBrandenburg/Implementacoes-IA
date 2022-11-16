@@ -1,6 +1,8 @@
 
 
 class Indice:
+    PATHDATABASE = 'pathDatabase'
+    GRAFICO = 'grafico'
     NOME = 'NAME'
     COMENTARIO = 'COMMENT'
     TIPO = 'TSP'

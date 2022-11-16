@@ -1,5 +1,9 @@
 from control import Control
+import random
 
-control = Control('SA/Databases/eil51.tsp.txt','SA/config.txt')
+random.seed()
+
+control = Control('SA/config.txt')
 control.start()
+#control.start()
 #control.iteracao()
