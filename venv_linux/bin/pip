@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/torradeira-pinguim/Documentos/Inteligencia Artificial - Rafael Stubs Parpinelli/Implementacoes/venv_linux/bin/python3" "$0" "$@"
+'''exec' "/home/torradeira-pinguim/Documentos/Inteligencia Artificial - Rafael Stubs Parpinelli/Implementacoes-IA/venv_linux/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

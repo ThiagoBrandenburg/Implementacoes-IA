@@ -67,8 +67,6 @@ def exercicio2log():
     x = [28, 30, 31, 33, 35, 36, 39, 41, 45, 49, 52, 53, 60, 66, 73]
     y = [400, 400, 410, 410, 400, 420, 410, 420, 450, 620, 680, 650, 850, 800, 1100]
     logy = [math.log(elemento) for elemento in y]
-    p = [logy[i]/y[i] for i in range(len(y))]
-    print('proporcao =',p)
     print(logy)
     n = len(x)
     x2 = [math.pow(elemento,2) for elemento in x]
