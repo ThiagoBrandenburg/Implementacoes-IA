@@ -1,0 +1,21 @@
+Flores exemplo muito bom: https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/
+
+Perceptron multi-layer: https://machinelearningmastery.com/build-multi-layer-perceptron-neural-network-models-keras/
+
+Carregar dados: https://www.tensorflow.org/tutorials/load_data/numpy?hl=pt-br
+
+Tutorial em portugues muito bom: https://www.tensorflow.org/tutorials/keras/classification?hl=pt-br
+
+Manipular entrada so com numpy: https://stackoverflow.com/questions/3674409/how-to-split-partition-a-dataset-into-training-and-test-datasets-for-e-g-cros
+
+Preparando dados com scikit-learn: https://scikit-learn.org/stable/modules/preprocessing.html
+
+validacao stack overflow: https://stackoverflow.com/questions/46308374/what-is-validation-data-used-for-in-a-keras-sequential-model
+
+exemplo keras para engenheiros: https://keras.io/getting_started/intro_to_keras_for_engineers/
+
+https://stackoverflow.com/questions/64436372/how-to-pass-a-numpy-ndarray-or-keras-metrix-as-a-keras-input
+
+https://stackoverflow.com/questions/59804110/how-to-take-as-input-a-list-of-arrays-in-keras-api
+
+Cristano Ronaldo foda-se: https://www.analyticsvidhya.com/blog/2021/07/performing-multi-class-classification-on-fifa-dataset-using-keras/
