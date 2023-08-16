@@ -1,6 +1,9 @@
 
 
-class Indice:
+from enum import Enum
+
+
+class Indice(Enum):
     PATHDATABASE = 'pathDatabase'
     GRAFICO = 'grafico'
     NOME = 'NAME'
