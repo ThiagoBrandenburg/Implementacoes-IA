@@ -6,6 +6,6 @@ leitor = Leitor()
 
 
 
-ambiente = Ambiente(leitor.loadConfig("AlgoritmoGenetico/data_real.txt"))
+ambiente = Ambiente(leitor.loadConfig(r"Implementacoes-IA\AlgoritmoGenetico\data_real.txt"))
 print(ambiente.population)
 
