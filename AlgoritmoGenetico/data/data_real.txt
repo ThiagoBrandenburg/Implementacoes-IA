@@ -1,0 +1,5 @@
+COD = REAL
+POP=10
+DIM=15		
+BOUND = [-10, 10]
+TYPE=?

@@ -24,7 +24,7 @@ class Leitor:
             #print('Bom dia')
             with open(pathDatabase) as arquivo:
                 linhas = arquivo.readlines()
-            print(linhas)
+            #print(linhas)
             config = {elemento[0]:elemento[1] for elemento in map(Leitor.mapConfig,linhas)}
             return config 
         except: Exception('(leitor) Erro de leitura de arquivo')

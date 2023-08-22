@@ -1,5 +1,0 @@
-COD = ?
-POP=10
-DIM=15		
-TYPE=INT
-BOUND=[-5,5]

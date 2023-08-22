@@ -1,0 +1,3 @@
+COD = BIN
+POP=10
+DIM=15		

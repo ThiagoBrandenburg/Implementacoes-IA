@@ -1,4 +1,0 @@
-COD = ?
-POP=10
-DIM=15		
-TYPE=BIN

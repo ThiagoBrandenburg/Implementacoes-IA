@@ -1,0 +1,5 @@
+COD = INT-PERM
+POP=10
+DIM=15	
+BOUND=[-5,21]	
+TYPE=?
