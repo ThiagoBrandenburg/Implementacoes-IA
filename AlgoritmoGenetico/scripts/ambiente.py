@@ -22,6 +22,7 @@ class Ambiente:
         self.problem = problem
         self.config = problem.set_problem(config)
         self.population = self.generate_population()
+        self.evaluation = [0 for _ in range(len(self.population))]
         
 
     def generate_population(self):
@@ -48,7 +49,7 @@ class Ambiente:
                 return [random.random()*(bound[1]-bound[0])+bound[0] for _ in range(dim)]
             case _:
                 return random.choices((1,0),k=dim)
-    
-
-            
-
+        
+    def evaluate(self):
+        '''Avalia as alternativas e salva no vetor evaluation'''
+        self.evaluation = [self.problem.fitness(self.problem.decode(cromossomo)) for cromossomo in self.population]
