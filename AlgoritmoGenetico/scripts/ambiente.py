@@ -9,6 +9,8 @@ class Problem:
 
     def set_problem(self,config:dict)->dict:...
 
+    def generate_population(self,pop_size)->list:...
+
 
 class Ambiente:
     type_dict = {
@@ -20,6 +22,7 @@ class Ambiente:
     
     def __init__(self,config:dict,problem:Problem) -> None:
         self.problem = problem
+        self.config = config
         self.config = problem.set_problem(config)
         self.population = self.generate_population()
         self.evaluation = [0 for _ in range(len(self.population))]
@@ -27,8 +30,11 @@ class Ambiente:
 
     def generate_population(self):
         pop = int(self.config['POP'])
-        population = [self.gerar_individuo() for _ in range(pop)]
-        return population
+        if self.config['COD'] == 'CUSTOM':
+            return self.problem.generate_population(pop)
+        else:
+            population = [self.gerar_individuo() for _ in range(pop)]
+            return population
     
     def gerar_individuo(self):
         dim = int(self.config['DIM'])
@@ -43,7 +49,6 @@ class Ambiente:
                 individuo = random.sample(range(*bound),k=dim)
                 assert len(set(individuo)) == len(individuo)
                 return individuo
-            
             case 'REAL':
                 bound = list(map(int,self.config['BOUND'].strip('][ ').split(',')))
                 return [random.random()*(bound[1]-bound[0])+bound[0] for _ in range(dim)]

@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class Nrainhas:
     def __init__(self,resolution=8) -> None:
@@ -7,7 +8,7 @@ class Nrainhas:
     def set_problem(self,config:dict)->dict:
         dim = int(config['DIM'])
         config['BOUND'] = '[0,'+str(dim**2)+']'
-        config['COD'] = 'INT-PERM'
+        config['COD'] = 'CUSTOM'
         return config
 
     def encode(self,solucao:list[tuple[int]])->list[int]:
@@ -46,5 +47,13 @@ class Nrainhas:
         for queen in solution:
             matrix[queen[0]][queen[1]] = 1
         return matrix
+    
+    def generate_population(self,pop_size):
+        population = []
+        for _ in range(pop_size):
+            cromossomo = [(j,random.randint(0,self.resolution)) for j in range(self.resolution)]
+            population.append(self.encode(cromossomo))
+        return population
+        
                     
                 
