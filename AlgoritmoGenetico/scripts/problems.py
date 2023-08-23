@@ -51,7 +51,7 @@ class Nrainhas:
     def generate_population(self,pop_size):
         population = []
         for _ in range(pop_size):
-            cromossomo = [(j,random.randint(0,self.resolution)) for j in range(self.resolution)]
+            cromossomo = [(j,random.randint(0,self.resolution-1)) for j in range(self.resolution)]
             population.append(self.encode(cromossomo))
         return population
         

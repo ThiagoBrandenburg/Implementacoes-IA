@@ -2,9 +2,7 @@ from scripts.leitor import Leitor
 from scripts.ambiente import Ambiente
 from scripts.problems import Nrainhas
 import seaborn as sns
-import pandas as pd
 import matplotlib.pyplot as plt
-
 import matplotlib.cm as cmap
 
 leitor = Leitor()
