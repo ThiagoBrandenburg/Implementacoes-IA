@@ -18,15 +18,25 @@ ambiente = Ambiente(config=config,problem=nrainhas)
 
 #Definindo melhor e pior solução
 ambiente.evaluate()
-best = ambiente.population[ambiente.population.index(max(ambiente.population))]
-worst = ambiente.population[ambiente.population.index(min(ambiente.population))]
+ambiente.save_elite()
+
+best = nrainhas.decode(ambiente.population[ambiente.evaluation.index(max(ambiente.evaluation))])
+worst = nrainhas.decode(ambiente.population[ambiente.evaluation.index(min(ambiente.evaluation))])
+
+
+print('Best:',nrainhas.decode(best))
+print('Elite:',ambiente.elite_population)
+print('Fit_max(best):',nrainhas.fit_max(best))
+print('Fit_min(best):',nrainhas.fit_min(best))
+print('Fit_max(worst):',nrainhas.fit_max(worst))
+print('Fit_min(worst):',nrainhas.fit_min(worst))
 
 fig, ax = plt.subplots(1,2,figsize=(10,4))
-sns.heatmap(ax=ax[0],data=nrainhas.get_matrix(nrainhas.decode(best)),cmap='gray').set(title='Melhor')
-sns.heatmap(ax=ax[1],data=nrainhas.get_matrix(nrainhas.decode(worst)),cmap='gray').set(title='Pior')
+sns.heatmap(ax=ax[0],data=nrainhas.get_matrix(best),cmap='gray').set(title='Melhor (colisões='+str(nrainhas.objective_function(best))+')')
+sns.heatmap(ax=ax[1],data=nrainhas.get_matrix(worst),cmap='gray').set(title='Pior (colisões='+str(nrainhas.objective_function(worst))+')')
 plt.show()
 
-print(nrainhas.decode(best))
+
 # print('best:\n',nrainhas.get_matrix(nrainhas.decode(best)))
 # print('worst:\n',nrainhas.get_matrix(nrainhas.decode(worst)))
 

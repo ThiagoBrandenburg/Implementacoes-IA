@@ -26,6 +26,9 @@ class Ambiente:
         self.config = problem.set_problem(config)
         self.population = self.generate_population()
         self.evaluation = [0 for _ in range(len(self.population))]
+        self.elitism = int(self.config['ELITISM']) if 'ELITISM' in self.config.keys() else 1
+        self.elite_population = []
+
         
 
     def generate_population(self):
@@ -45,7 +48,7 @@ class Ambiente:
                 bound = list(map(int,self.config['BOUND'].strip('][ ').split(',')))
                 return [random.randint(*bound) for _ in range(dim)]
             case 'INT-PERM':
-                bound = list(map(int,self.config['BOUND'].strip('][ ').split(',')))
+                bound = (0,dim)
                 individuo = random.sample(range(*bound),k=dim)
                 assert len(set(individuo)) == len(individuo)
                 return individuo
@@ -58,3 +61,7 @@ class Ambiente:
     def evaluate(self):
         '''Avalia as alternativas e salva no vetor evaluation'''
         self.evaluation = [self.problem.fitness(self.problem.decode(cromossomo)) for cromossomo in self.population]
+
+    def save_elite(self):
+        evaluation_positions_sorted = sorted(range(len(self.evaluation)),key=lambda x: self.evaluation[x],reverse=True)
+        self.elite_population = [self.population[evaluation_positions_sorted[i]] for i in range(self.elitism)]
