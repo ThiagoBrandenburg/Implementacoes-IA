@@ -74,7 +74,7 @@ class AlgebricFunction:
         lim = (self.x_max - self.x_min)/self.precision
         print('set_bit_limit',lim)
         l = 0
-        while math.pow(2,l) < lim: l+=1
+        while math.pow(2,l) <= lim: l+=1
         return l
 
     def set_problem(self,config:dict)->dict:
@@ -84,6 +84,7 @@ class AlgebricFunction:
 
     def encode(self,solution:float):
         d = round((solution - self.x_min) / ((self.x_max-self.x_min)/(math.pow(2,self.limit))-1))
+        print('d:',d)
         cromossomo = []
         for _ in range(self.limit):
             cromossomo.append(d%2)
