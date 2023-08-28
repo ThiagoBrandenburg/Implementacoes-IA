@@ -70,9 +70,7 @@ class AlgebricFunction:
         return bound
     
     def set_bit_limit(self):
-        print(self.x_max,self.x_min,self.precision)
         lim = (self.x_max - self.x_min)/self.precision
-        print('set_bit_limit',lim)
         l = 0
         while math.pow(2,l) <= lim: l+=1
         return l
@@ -83,8 +81,9 @@ class AlgebricFunction:
         return config
 
     def encode(self,solution:float):
-        d = round((solution - self.x_min) / ((self.x_max-self.x_min)/(math.pow(2,self.limit))-1))
-        print('d:',d)
+        #print('solution:',solution,'max:', self.x_max, ' min:',self.x_min, ' limit:',self.limit)
+        d = round((solution - self.x_min) * ((math.pow(2,self.limit))-1) / (self.x_max- self.x_min))
+        #print('d:',d)
         cromossomo = []
         for _ in range(self.limit):
             cromossomo.append(d%2)
@@ -99,7 +98,7 @@ class AlgebricFunction:
 
 
     def objective_function(self,solution)->any:
-        x  = solution[0]
+        x  = solution
         fx = math.cos(20*x) - (abs(x)/2) + (math.pow(x,3)/4)
         return fx
     
@@ -112,7 +111,7 @@ class AlgebricFunction:
         return min
 
     def fitness(self,solution):
-        fit_value = (self.objective_function(solution) - self.y_min)/(self.y_max)-(self.y_min)
+        fit_value = (self.objective_function(solution) - self.y_min)/((self.y_max)-(self.y_min))
         return fit_value
 
     def fit_max(self,solution:list):
