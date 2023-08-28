@@ -1,5 +1,5 @@
 import numpy as np
-import random
+import math
 
 class Nrainhas:
     def __init__(self,resolution=8) -> None:
@@ -56,6 +56,69 @@ class Nrainhas:
             matrix[queen[0]][queen[1]] = 1
         return matrix
     
-        
+
+class AlgebricFunction:
+    def __init__(self,config:dict,precision=0.001) -> None:
+        self.x_min, self.x_max = self.parse_range(config)
+        self.precision = precision
+        self.y_max = self.set_y_max(self.x_max)
+        self.y_min = self.set_y_min(self.x_min)
+        self.limit = self.set_bit_limit()
+
+    def parse_range(self,config):
+        bound = list(map(int,config['BOUND'].strip('][ ').split(',')))
+        return bound
+    
+    def set_bit_limit(self):
+        print(self.x_max,self.x_min,self.precision)
+        lim = (self.x_max - self.x_min)/self.precision
+        print('set_bit_limit',lim)
+        l = 0
+        while math.pow(2,l) < lim: l+=1
+        return l
+
+    def set_problem(self,config:dict)->dict:
+        config['COD'] = 'BIN'
+        config['DIM'] = str(self.limit)
+        return config
+
+    def encode(self,solution:float):
+        d = round((solution - self.x_min) / ((self.x_max-self.x_min)/(math.pow(2,self.limit))-1))
+        cromossomo = []
+        for _ in range(self.limit):
+            cromossomo.append(d%2)
+            d = d//2
+        cromossomo
+        return cromossomo
+            
+    def decode(self,cromossomo:list)->list:
+        d = sum([cromossomo[i]*math.pow(2,i) for i in range(self.limit)])
+        solution = self.x_min + ((self.x_max - self.x_min)/(math.pow(2,self.limit)-1))*d
+        return solution
+
+
+    def objective_function(self,solution)->any:
+        x  = solution[0]
+        fx = math.cos(20*x) - (abs(x)/2) + (math.pow(x,3)/4)
+        return fx
+    
+    def set_y_max(self,x):
+        max = math.pow(x,3)/4 + 1
+        return max
+
+    def set_y_min(self,x):
+        min = math.pow(x,3)/4 - abs(x)/2 -1
+        return min
+
+    def fitness(self,solution):
+        fit_value = (self.objective_function(solution) - self.y_min)/(self.y_max)-(self.y_min)
+        return fit_value
+
+    def fit_max(self,solution:list):
+        return self.fitness(solution)
+
+    def fit_min(self,solution:list):
+        return 1 - self.fitness(solution)
+
                     
                 

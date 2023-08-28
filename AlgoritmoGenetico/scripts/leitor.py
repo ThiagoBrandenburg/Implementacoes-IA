@@ -38,5 +38,6 @@ class Leitor:
                 d = json.loads(dados)
             return d   
         except: Exception('Erro de leitura das configuracoes')
+        
 
 
