@@ -17,7 +17,6 @@ class Problem:
 
     def fit_min(self,solution)->any:...
 
-
 class Ambiente:
     type_dict = {
         'BIN': bool,

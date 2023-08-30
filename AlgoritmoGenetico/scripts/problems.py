@@ -1,5 +1,24 @@
 import numpy as np
 import math
+import random
+
+class Problem:
+    def encode(self,solution:list)->list:...
+
+    def decode(self,cromossomo:list)->list:...
+
+    def objective_function(self,solution)->any:...
+    
+    def fitness(self,solution)->any:...
+
+    def set_problem(self,config:dict)->dict:...
+
+    def generate_population(self,pop_size)->list:...
+
+    def fit_max(self,solution)->any:...
+
+    def fit_min(self,solution)->any:...
+
 
 class Nrainhas:
     def __init__(self,resolution=8) -> None:
@@ -121,4 +140,48 @@ class AlgebricFunction:
         return 1 - self.fitness(solution)
 
                     
-                
+class FabricaDeRadios:
+    '''
+    max 30x1 + 24x2
+    x1 < 24
+    x2 < 16
+    x1 + 2*x2 < 40
+    '''
+    def __init__(self,penality_factor=-1):
+        self.penality_factor = penality_factor
+
+    def encode(self,solution:list):
+        return solution
+
+    def decode(self,cromossomo:list):
+        return cromossomo
+
+    def objective_function(self,solution):
+        '''30*24+40*16=1360'''
+        objective_value = (30*solution[0] + 40*solution[1])/1360
+        return objective_value
+
+    def penality_function(self,solution):
+        '''24 + 2*16 = 24 +32 = 56'''
+        penality = ((solution[0] + 2*solution[1]) - 40)/16
+        penality = max(0,penality)
+        return penality
+    
+    def fitness(self,solution):
+        fit_value = self.objective_function(solution) + self.penality_factor*self.penality_function(solution)
+        return fit_value
+
+    def set_problem(self,config:dict)->dict:
+        config['COD'] = 'CUSTOM'
+        return config
+
+    def generate_population(self,pop_size):
+        population = [(random.randint(0,24),random.randint(0,16)) for _ in range(pop_size)]
+        return population
+
+    def fit_max(self,solution):
+        return self.fitness(solution)
+
+    def fit_min(self,solution):
+        return 1 - self.fitness(solution)
+
