@@ -128,17 +128,18 @@ class Ambiente:
 
 
     def _mutate(self,cromossomo:np.ndarray):
-        for gene in cromossomo:
+        for gene in range(len(cromossomo)):
+            alelo = cromossomo[gene]
             chance = random.random()
             if chance <= self.mutation_rate:
                 #print('mutou!')
                 match self.config['COD']:
                     case 'BIN':
-                        gene = not gene
+                        cromossomo[gene] = not alelo
                     case 'INT':
                         cr_std = cromossomo.std()
                         print('cr_std',cr_std)
-                        gene = gene + random.randint(-cr_std,cr_std)
+                        cromossomo[gene] = alelo + random.randint(-cr_std,cr_std)
                     case 'INT-PERM':
                         bound = (0,self.dim_size)
                         individuo = random.sample(range(*bound),k=self.dim_size)
@@ -158,10 +159,10 @@ class Ambiente:
         print('Loop()')
         self.save_elite()
 
-
         self.generate_mating_pool()
         self.generate_mutation(self.mating_pool)
         mating_pool_evaluation = self.evaluate(self.mating_pool)
+        print([self.problem.decode(cromossomo) for cromossomo in self.mating_pool])
         for elite,elite_eval in zip(self.elite_population,self.elite_evaluation):
             pior = mating_pool_evaluation.argmin()
             self.mating_pool[pior] = elite
