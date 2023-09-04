@@ -3,9 +3,9 @@ import math
 import random
 
 class Problem:
-    def encode(self,solution:list)->list:...
+    def encode(self,solution)->np.array:...
 
-    def decode(self,cromossomo:list)->list:...
+    def decode(self,cromossomo:np.array)->any:...
 
     def objective_function(self,solution)->any:...
     
@@ -31,12 +31,12 @@ class Nrainhas:
         config['COD'] = 'INT-PERM'
         return config
 
-    def encode(self,solucao:list[tuple[int]])->list[int]:
+    def encode(self,solucao:list[tuple[int]])->np.array:
         '''y=k*i + j sendo k a resolução do tabuleiro'''
-        cromossomo = [elemento[1] for elemento in solucao]
+        cromossomo = np.array([elemento[1] for elemento in solucao])
         return cromossomo
 
-    def decode(self,cromossomo:list[int])->list[tuple[int]]:
+    def decode(self,cromossomo:np.array)->list[tuple[int]]:
         solucao = [(i,cromossomo[i]) for i in range(len(cromossomo))]
         return solucao
 
@@ -173,6 +173,7 @@ class FabricaDeRadios:
 
     def set_problem(self,config:dict)->dict:
         config['COD'] = 'CUSTOM'
+        config['DIM'] = 2
         return config
 
     def generate_population(self,pop_size):
