@@ -51,7 +51,7 @@ class Ambiente:
         self.mutation_rate = 0.05
 
     def generate_population(self):
-        if self.config['COD'] == 'CUSTOM':
+        if self.config['COD'] == 'CUSTOM-INT':
             return self.problem.generate_population(self.pop_size)
         else:
             population = [self.gerar_individuo() for _ in range(self.pop_size)]
@@ -138,6 +138,10 @@ class Ambiente:
                         cromossomo[gene] = not alelo
                     case 'INT':
                         cr_std = cromossomo.std()
+                        print('cr_std',cr_std)
+                        cromossomo[gene] = alelo + random.randint(-cr_std,cr_std)
+                    case 'CUSTOM-INT':
+                        cr_std = int(cromossomo.std())
                         print('cr_std',cr_std)
                         cromossomo[gene] = alelo + random.randint(-cr_std,cr_std)
                     case 'INT-PERM':

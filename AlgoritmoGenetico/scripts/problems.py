@@ -172,8 +172,9 @@ class FabricaDeRadios:
         return fit_value
 
     def set_problem(self,config:dict)->dict:
-        config['COD'] = 'CUSTOM'
-        config['DIM'] = 2
+        config['COD'] = 'CUSTOM-INT'
+        config['DIM'] = 24
+        config['BOUND'] = [0,3]
         return config
 
     def generate_population(self,pop_size):
