@@ -40,6 +40,7 @@ class Ambiente:
         self.evaluation = self.evaluate(self.population)
         self.elitism = int(self.config['ELITISM']) if 'ELITISM' in self.config.keys() else 1
         self.mutation_rate = float(self.config['MUTATION_RATE']) if 'MUTATION_RATE' in self.config.keys() else 0.05
+        self.cross_over_rate = (float(self.config['CROSSOVER_RATE'])) if 'CROSSOVER_RATE' in self.config.keys() else 0.8
         self.elite_population = []
         self.elite_evaluation = []
         self.mating_pool = []
@@ -132,7 +133,6 @@ class Ambiente:
             alelo = cromossomo[gene]
             chance = random.random()
             if chance <= self.mutation_rate:
-                #print('mutou!')
                 match self.config['COD']:
                     case 'BIN':
                         cromossomo[gene] = not alelo
@@ -146,21 +146,52 @@ class Ambiente:
                         assert len(set(individuo)) == len(individuo)
                         return individuo
                     case 'REAL':
-                        bound = list(map(int,self.config['BOUND'].strip('][ ').split(',')))
-                        return [random.random()*(bound[1]-bound[0])+bound[0] for _ in range(self.dim_size)]
+                        cr_std = cromossomo.std()
+                        print('cr_std',cr_std)
+                        cromossomo[gene] = alelo + random.random(-cr_std,cr_std)
                     case _:
                         return random.choices((1,0),k=self.dim_size)
+        return cromossomo
     
     def generate_mutation(self,population):
         mutated_population = [self._mutate(cromossomo) for cromossomo in population]
         return mutated_population
+    
+
+    def _one_point_cross_over(self,cr1,cr2):
+        position = random.randint(0,len(cr1)-1)
+        cr1_floor, cr1_ceil = cr1[:position], cr1[position:]
+        cr2_floor, cr2_ceil = cr2[:position], cr2[position:]
+        mated_cr1 = np.concatenate((cr1_floor,cr2_ceil),axis=0)
+        mated_cr2 = np.concatenate((cr2_floor,cr1_ceil),axis=0)
+        # print('cr:',cr1,cr2)
+        # print('op:',cr1_floor,cr1_ceil,cr2_floor,cr2_ceil)
+        # print('mated',mated_cr1,mated_cr2)
+        return mated_cr1,mated_cr2
+    
+    
+    def generate_cross_over(self,population):
+        mated_population = []
+        for i in range(len(population)//2):
+            cr1 = population[2*i]
+            cr2 = population[(2*i) +1]
+            chance = random.random()
+            if chance <= self.cross_over_rate:
+                mated_cr1, mated_cr2 = self._one_point_cross_over(cr1,cr2)
+                mated_population += [mated_cr1,mated_cr2]
+            else:
+                mated_population += [cr1, cr2]
+        return mated_population
                     
     def loop(self):
+
         print('Loop()')
         self.save_elite()
-
+        print('Pop:',self.population)
         self.generate_mating_pool()
-        self.generate_mutation(self.mating_pool)
+        self.mating_pool = self.generate_cross_over(self.mating_pool)
+        self.mating_pool = self.generate_mutation(self.mating_pool)
+        print('Mutated:',self.mating_pool)
         mating_pool_evaluation = self.evaluate(self.mating_pool)
         print([self.problem.decode(cromossomo) for cromossomo in self.mating_pool])
         for elite,elite_eval in zip(self.elite_population,self.elite_evaluation):
