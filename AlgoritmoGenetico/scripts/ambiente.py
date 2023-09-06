@@ -145,10 +145,10 @@ class Ambiente:
                         print('cr_std',cr_std)
                         cromossomo[gene] = alelo + random.randint(-cr_std,cr_std)
                     case 'INT-PERM':
-                        bound = (0,self.dim_size)
-                        individuo = random.sample(range(*bound),k=self.dim_size)
-                        assert len(set(individuo)) == len(individuo)
-                        return individuo
+                        g2 = random.randint(0,len(cromossomo)-1)
+                        aux = cromossomo[gene]
+                        cromossomo[gene] = cromossomo[g2]
+                        cromossomo[g2] = aux
                     case 'REAL':
                         cr_std = cromossomo.std()
                         print('cr_std',cr_std)
@@ -173,6 +173,11 @@ class Ambiente:
         # print('mated',mated_cr1,mated_cr2)
         return mated_cr1,mated_cr2
     
+    def _cicle_crossover(self,cr1,cr2):
+        half = len(cr1)//2
+        p1 = random.randint(0,len(cr1)-1)
+        p2 = 
+    
     
     def generate_cross_over(self,population):
         mated_population = []
@@ -181,7 +186,10 @@ class Ambiente:
             cr2 = population[(2*i) +1]
             chance = random.random()
             if chance <= self.cross_over_rate:
-                mated_cr1, mated_cr2 = self._one_point_cross_over(cr1,cr2)
+                if self.config['COD']=='INT-PERM':
+                    mated_cr1, mated_cr2 = self._cicle_crossover(cr1,cr2)
+                else:
+                    mated_cr1, mated_cr2 = self._one_point_cross_over(cr1,cr2)
                 mated_population += [mated_cr1,mated_cr2]
             else:
                 mated_population += [cr1, cr2]
@@ -191,13 +199,13 @@ class Ambiente:
 
         print('Loop()')
         self.save_elite()
-        print('Pop:',self.population)
+        #print('Pop:',self.population)
         self.generate_mating_pool()
         self.mating_pool = self.generate_cross_over(self.mating_pool)
         self.mating_pool = self.generate_mutation(self.mating_pool)
-        print('Mutated:',self.mating_pool)
+        #print('Mutated:',self.mating_pool)
         mating_pool_evaluation = self.evaluate(self.mating_pool)
-        print([self.problem.decode(cromossomo) for cromossomo in self.mating_pool])
+        #print([self.problem.decode(cromossomo) for cromossomo in self.mating_pool])
         for elite,elite_eval in zip(self.elite_population,self.elite_evaluation):
             pior = mating_pool_evaluation.argmin()
             self.mating_pool[pior] = elite
@@ -209,5 +217,5 @@ class Ambiente:
         self.results_best.append(self.evaluation.max())
         self.results_mean.append(self.evaluation.mean())
 
-        print('Elite eval:',self.elite_evaluation)
+        #print('Elite eval:',self.elite_evaluation)
         #end of execution
