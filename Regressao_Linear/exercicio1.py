@@ -79,8 +79,8 @@ def exercicio2log():
     xn = 90
     logy0 = f(x0,f1)
     logyn = f(xn,f1)
-    y0 = reverte_log(logy0)
-    yn = reverte_log(logyn)
+    reverte_log(logy0)
+    reverte_log(logyn)
     ex2c = {19:reverte_log(f(19,f1)), 55:reverte_log(f(55,f1)), 85:reverte_log(f(85,f1))}
     print(ex2c)
 

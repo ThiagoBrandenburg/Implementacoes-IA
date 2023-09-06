@@ -1,4 +1,4 @@
-from ambiente import Ambiente, Agente, Celula
+from ambiente import Ambiente, Agente
 import pygame
 
 class Exibicao:

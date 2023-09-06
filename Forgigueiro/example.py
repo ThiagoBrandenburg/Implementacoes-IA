@@ -1,8 +1,4 @@
-from email import iterators
-from optparse import AmbiguousOptionError
-from random import randrange, seed, random
-from time import sleep
-from tokenize import Exponent
+from random import seed
 import ambiente as ab
 import pygame
 

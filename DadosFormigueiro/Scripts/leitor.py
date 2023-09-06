@@ -1,4 +1,3 @@
-from code import interact
 from typing import Dict
 from ambiente import Item
 import json

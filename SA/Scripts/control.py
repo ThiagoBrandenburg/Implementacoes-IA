@@ -63,16 +63,15 @@ class Control:
 
 
     def graph(self):
-        i = 0
-        while self.ambiente.iteracao()==True:
-            i = 0
+        while self.ambiente.iteracao() is True:
+            pass
         self.ambiente.exibir()
 
     def boxplot(self):
         l_box_plot = [[],[],[]]
         for i in range(3):
             for teste in self.ambientes[i]:
-                while teste.iteracao()==True:
+                while teste.iteracao() is True:
                     pass
                 l_box_plot[i].append(teste.pesocaminhoAtual)
             #print(min(l_box_plot))

@@ -121,7 +121,7 @@ class Ambiente:
             )
             return evaluation
         else:
-            if self.parallel == False:
+            if self.parallel is False:
                 evaluation = np.array(
                     [
                         self.problem.fitness(self.problem.decode(cromossomo))

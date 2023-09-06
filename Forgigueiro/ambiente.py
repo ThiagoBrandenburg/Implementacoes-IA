@@ -1,11 +1,4 @@
-from cmath import sqrt
-from math import ceil,sqrt
-from operator import le
 from random import randrange, random
-from statistics import quantiles
-from tkinter import Y
-from turtle import distance
-import typing
 import pygame
 
 
@@ -63,7 +56,7 @@ class Agente:
     def passo(self, vizinhos: list[Celula]):
         vizinhos_disponiveis = []
         for vizinho in vizinhos:
-            if vizinho.temAgente == False:
+            if vizinho.temAgente is False:
                 vizinhos_disponiveis.append(vizinho)
         if len(vizinhos_disponiveis)>0:
             escolha = randrange(0,len(vizinhos_disponiveis))

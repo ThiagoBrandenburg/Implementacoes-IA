@@ -48,7 +48,7 @@ class Celula:
         else: raise Exception('Ja ha um item nessa celula')
 
     def temItem(self):
-        return not self.item==None
+        return self.item is not None
 
 
 
@@ -84,10 +84,10 @@ class Agente:
         self.posicao.temAgente = True
         
     def carregaItem(self):
-        return not self.item == None
+        return self.item is not None
 
     def temItem(self):
-        return not self.item == None 
+        return self.item is not None 
 
     def getItem(self)->Item:
         if self.temItem():
@@ -104,7 +104,7 @@ class Agente:
     def passo(self, vizinhos: list[Celula]):
         vizinhos_disponiveis = []
         for vizinho in vizinhos:
-            if vizinho.temAgente == False:
+            if vizinho.temAgente is False:
                 vizinhos_disponiveis.append(vizinho)
         if len(vizinhos_disponiveis)>0:
             escolha = randrange(0,len(vizinhos_disponiveis))

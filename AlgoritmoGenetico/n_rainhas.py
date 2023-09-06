@@ -3,7 +3,6 @@ from scripts.ambiente import Ambiente
 from scripts.problems import Nrainhas
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.cm as cmap
 
 leitor = Leitor()
 config = leitor.loadConfig("AlgoritmoGenetico/data/data_nrainhas8.txt")
