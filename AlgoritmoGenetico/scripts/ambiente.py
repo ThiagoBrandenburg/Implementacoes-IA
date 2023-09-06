@@ -33,9 +33,9 @@ class Problem:
 class Ambiente:
     type_dict = {"BIN": bool, "INT": int, "INT-PERM": int, "REAL": float}
 
-    def __init__(self, config: dict, problem: Problem) -> None:
+    def __init__(self, config: dict, problem: Problem,parallel=False) -> None:
         random.seed()
-
+        self.parallel = parallel
         self.problem = problem
         self.config = config
         self.config = problem.set_problem(config)
@@ -43,6 +43,7 @@ class Ambiente:
         self.dim_size = int(self.config["DIM"])
         self.population = self.generate_population()
         self.evaluation = self.evaluate(self.population)
+
         self.elitism = (
             int(self.config["ELITISM"]) if "ELITISM" in self.config.keys() else 1
         )
@@ -102,15 +103,15 @@ class Ambiente:
     def evaluate(self, population=None) -> np.ndarray:
         """Avalia uma população, caso não seja fornecido uma população como argumento, avalia self.population e atualiza/retorna self.evaluation"""
         if type(population) == NoneType:
-            # evaluation = np.array(
-            #     [
-            #         self.problem.fitness(self.problem.decode(cromossomo))
-            #         for cromossomo in self.population
-            #     ]
-            # )
+            evaluation = np.array(
+                [
+                    self.problem.fitness(self.problem.decode(cromossomo))
+                    for cromossomo in self.population
+                ]
+            )
             def fx(x):
                 print(x)
-                #self.problem.fitness(self.problem.decode(x))
+                self.problem.fitness(self.problem.decode(x))
                 return x
             evaluation = np.array(Parallel(n_jobs=4)
                 (
@@ -118,18 +119,28 @@ class Ambiente:
                     for cromossomo in self.population
                 )
             )
-            self.evaluation = evaluation
             return evaluation
         else:
-            evaluation = np.array(Parallel(n_jobs=-1)
-                (
-                    self.problem.fitness(self.problem.decode(cromossomo))
-                    for cromossomo in population
+            if self.parallel == False:
+                evaluation = np.array(
+                    [
+                        self.problem.fitness(self.problem.decode(cromossomo))
+                        for cromossomo in self.population
+                    ]
                 )
-            )
+            else:
+                # def fx(x):
+                #     return self.problem.fitness()
+                evaluation = np.array(Parallel(n_jobs=-1)
+                    (
+                        delayed(self.problem.fitness)(self.problem.decode(cromossomo))
+                        for cromossomo in self.population
+                    )
+                )
             return evaluation
 
     def save_elite(self):
+        #print('eval:',self.evaluation)
         evaluation_positions_sorted = sorted(
             range(len(self.evaluation)), key=lambda x: self.evaluation[x], reverse=True
         )
