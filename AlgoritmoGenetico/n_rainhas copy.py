@@ -3,18 +3,22 @@ from scripts.ambiente import Ambiente
 from scripts.problems import Nrainhas
 import seaborn as sns
 import matplotlib.pyplot as plt
+import time
 
 if __name__ == '__main__':
-    config = Leitor().loadConfig('AlgoritmoGenetico/data/data_nrainhas32.txt')
-    problem = Nrainhas(32)
+    config = Leitor().loadConfig('AlgoritmoGenetico/data/data_nrainhas128.txt')
+    problem = Nrainhas(128)
+    start = time.time()
+    start = time.perf_counter()
 
-    ambiente = Ambiente(config,problem=problem,parallel=False)
-    for i in range(1000):
+    ambiente = Ambiente(config,problem=problem,parallel=True)
+    for i in range(3000):
         if i % 100 == 0:
             print(i)
         ambiente.loop()
 
-
+    end = time.perf_counter() -start
+    print('time:',end)
     fig, ax = plt.subplots(1,2,figsize=(12,5))
     sns.lineplot(ambiente.results_best,color='Red',ax=ax[0])
     sns.lineplot(ambiente.results_mean,color='Blue',ax=ax[0])
