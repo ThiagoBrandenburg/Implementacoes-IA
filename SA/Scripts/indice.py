@@ -1,5 +1,3 @@
-
-
 from enum import Enum
 
 
@@ -17,6 +15,3 @@ class Indice(Enum):
     TEMPERATURA_INICIAL = 'temperatura_inicial'
     TEMPERATURA_FINAL = 'temperatura_final'
     COOLING = 'cooling'
-
-    def __init__(self) -> None:
-        pass

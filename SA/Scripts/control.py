@@ -16,11 +16,11 @@ class Control:
         
         self.leitor = Leitor()
         configuracoes = self.leitor.carregaConfiguracoes(configPath)
-        self.grafico = configuracoes[Indice.GRAFICO]
+        self.grafico = configuracoes[Indice.GRAFICO.value]
         print('CONFIGURACOES = ',configuracoes)
         
         
-        databasePath = configuracoes[Indice.PATHDATABASE]
+        databasePath = configuracoes[Indice.PATHDATABASE.value]
         dados = self.leitor.carregaDatabase(databasePath)
         self.ambiente = Ambiente(dados,configuracoes)
         self.ambiente.iniciaMatriz()
