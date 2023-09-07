@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import random
+import seaborn as sns
 
 
 class Problem:
@@ -29,6 +30,7 @@ class Problem:
         ...
 
 
+
 class Nrainhas:
     def __init__(self, resolution=8) -> None:
         self.resolution = resolution
@@ -36,7 +38,11 @@ class Nrainhas:
 
     def set_problem(self, config: dict) -> dict:
         dim = int(config["DIM"])
-        config["BOUND"] = "[0," + str(dim) + "]"
+        config['BOUND'] = (
+            config['BOUND']
+            if 'BOUND' in config.keys()
+            else "[(0," + str(dim) + ")]"
+            )
         config["COD"] = "INT-PERM"
         return config
 
@@ -96,6 +102,7 @@ class Nrainhas:
         for queen in solution:
             matrix[queen[0]][queen[1]] = 1
         return matrix
+    
 
 
 class AlgebricFunction:
@@ -172,7 +179,7 @@ class AlgebricFunction:
 
 class FabricaDeRadios:
     """
-    max 30x1 + 24x2
+    max 30x1 + 40x2
     x1 < 24
     x2 < 16
     x1 + 2*x2 < 40
@@ -206,8 +213,8 @@ class FabricaDeRadios:
 
     def set_problem(self, config: dict) -> dict:
         config["COD"] = "CUSTOM-INT"
-        config["DIM"] = 24
-        config["BOUND"] = [0, 3]
+        #config["DIM"] = 24
+        #config["BOUND"] = [0, 3]
         return config
 
     def generate_population(self, pop_size):

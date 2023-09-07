@@ -12,12 +12,9 @@ if __name__ == '__main__':
     start = time.perf_counter()
 
     ambiente = Ambiente(config,problem=problem,parallel=True)
-    for i in range(3000):
-        if i % 100 == 0:
-            print(i)
-        ambiente.loop()
+    ambiente.run(step=100)
 
-    end = time.perf_counter() -start
+    end = time.perf_counter() - start
     print('time:',end)
     fig, ax = plt.subplots(1,2,figsize=(12,5))
     sns.lineplot(ambiente.results_best,color='Red',ax=ax[0])
