@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from types import NoneType
-from joblib import Parallel,delayed
+from joblib import Parallel, delayed
 
 
 class Problem:
@@ -33,7 +33,7 @@ class Problem:
 class Ambiente:
     type_dict = {"BIN": bool, "INT": int, "INT-PERM": int, "REAL": float}
 
-    def __init__(self, config: dict, problem: Problem,parallel=False) -> None:
+    def __init__(self, config: dict, problem: Problem, parallel=False) -> None:
         random.seed()
         self.parallel = parallel
         self.problem = problem
@@ -41,8 +41,8 @@ class Ambiente:
         self.config = problem.set_problem(config)
         self.pop_size = int(self.config["POP"])
         self.dim_size = int(self.config["DIM"])
-        self.bound_size = eval(self.config['BOUND'])
-        print('dim,bound:',self.dim_size,self.bound_size)
+        self.bound_size = eval(self.config["BOUND"])
+        print("dim,bound:", self.dim_size, self.bound_size)
         self.population = self.generate_population()
         self.evaluation = self.evaluate(self.population)
 
@@ -60,8 +60,8 @@ class Ambiente:
             else 0.8
         )
         self.iterations = (
-            int(self.config['ITERATIONS'])
-            if 'ITERATIONS' in self.config.keys()
+            int(self.config["ITERATIONS"])
+            if "ITERATIONS" in self.config.keys()
             else 100
         )
         self.elite_population = []
@@ -77,32 +77,43 @@ class Ambiente:
         if self.config["COD"] == "CUSTOM-INT":
             return self.problem.generate_population(self.pop_size)
         else:
-            population = [self.gerar_individuo(individuo) for individuo in range(self.pop_size)]
+            population = [
+                self.gerar_individuo(individuo) for individuo in range(self.pop_size)
+            ]
             return population
 
-    def gerar_individuo(self,gene:int):
+    def gerar_individuo(self, gene: int):
         dim = int(self.config["DIM"])
         match self.config["COD"]:
             case "BIN":
                 individuo = np.array(random.choices((1, 0), k=dim))
                 return individuo
             case "INT":
-                #bound = list(map(int, self.config["BOUND"].strip("][ ").split(",")))
-                #bound = eval(self.config['BOUND'])
-                #print('(gr_indv)','bound:',self.bound_size,'gene:',gene,'pop_size',self.pop_size)
-                individuo = np.array([random.randint(self.bound_size[i][0],self.bound_size[i][1]-1) for i in range(dim)])
+                # bound = list(map(int, self.config["BOUND"].strip("][ ").split(",")))
+                # bound = eval(self.config['BOUND'])
+                # print('(gr_indv)','bound:',self.bound_size,'gene:',gene,'pop_size',self.pop_size)
+                individuo = np.array(
+                    [
+                        random.randint(self.bound_size[i][0], self.bound_size[i][1] - 1)
+                        for i in range(dim)
+                    ]
+                )
                 return individuo
             case "INT-PERM":
-                #bound = (0, dim)
+                # bound = (0, dim)
                 print(self.bound_size)
-                individuo = random.sample(range(self.bound_size[0][0],self.bound_size[0][1]), k=dim)
+                individuo = random.sample(
+                    range(self.bound_size[0][0], self.bound_size[0][1]), k=dim
+                )
                 assert len(set(individuo)) == len(individuo)
                 return np.array(individuo)
             case "REAL":
-                #bound = list(map(int, self.config["BOUND"].strip("][ ").split(",")))
+                # bound = list(map(int, self.config["BOUND"].strip("][ ").split(",")))
                 individuo = np.array(
                     [
-                        random.random() * (self.bound_size[gene][1] - self.bound_size[gene][0]) + self.bound_size[gene][0]
+                        random.random()
+                        * (self.bound_size[gene][1] - self.bound_size[gene][0])
+                        + self.bound_size[gene][0]
                         for _ in range(dim)
                     ]
                 )
@@ -119,13 +130,14 @@ class Ambiente:
                     for cromossomo in self.population
                 ]
             )
+
             def fx(x):
                 self.problem.fitness(self.problem.decode(x))
                 return x
-            evaluation = np.array(Parallel(n_jobs=4)
-                (
-                    delayed(fx)(cromossomo)
-                    for cromossomo in self.population
+
+            evaluation = np.array(
+                Parallel(n_jobs=4)(
+                    delayed(fx)(cromossomo) for cromossomo in self.population
                 )
             )
             return evaluation
@@ -140,8 +152,8 @@ class Ambiente:
             else:
                 # def fx(x):
                 #     return self.problem.fitness()
-                evaluation = np.array(Parallel(n_jobs=-1)
-                    (
+                evaluation = np.array(
+                    Parallel(n_jobs=-1)(
                         delayed(self.problem.fitness)(self.problem.decode(cromossomo))
                         for cromossomo in self.population
                     )
@@ -184,15 +196,14 @@ class Ambiente:
         e1 = self._p_selection(replacement)
         e1 = e1 if e1 < e0 else e1 + 1
         return (self.population[e0], self.population[e1])
-    
-    def _estocastic_tournament(self,sample_size=2,best_chace=1):
-        participants = random.sample(range(self.pop_size),sample_size)
+
+    def _estocastic_tournament(self, sample_size=2, best_chace=1):
+        participants = random.sample(range(self.pop_size), sample_size)
         gene = self.evaluation[participants].argmax()
         if random.random() > best_chace:
             gene = self.evaluation[participants].argmin()
-        cromossomo =  self.population[gene]
+        cromossomo = self.population[gene]
         return cromossomo
-
 
     def generate_mating_pool(self):
         """Gera a Mating pool com base na população"""
@@ -203,13 +214,15 @@ class Ambiente:
         #         for _ in range(self.pop_size // 2)
         #     ]
         # )
-        mating_pool = np.array([self._estocastic_tournament() for _ in range(self.pop_size)])
+        mating_pool = np.array(
+            [self._estocastic_tournament() for _ in range(self.pop_size)]
+        )
         self.mating_pool = mating_pool
         return mating_pool
 
     def _mutate(self, cromossomo: np.ndarray):
         for gene in range(self.dim_size):
-            chance = random.random()   
+            chance = random.random()
             if chance <= self.mutation_rate:
                 alelo = cromossomo[gene]
                 match self.config["COD"]:
@@ -231,9 +244,13 @@ class Ambiente:
                         # cr_std = cromossomo.std()
                         # print("cr_std", cr_std)
                         # cromossomo[gene] = alelo + random.random(-cr_std, cr_std)
-                        cromossomo[gene] = random.random() * (self.bound_size[gene][1] - self.bound_size[gene][0]) + self.bound_size[gene][0]
+                        cromossomo[gene] = (
+                            random.random()
+                            * (self.bound_size[gene][1] - self.bound_size[gene][0])
+                            + self.bound_size[gene][0]
+                        )
                     case "CUSTOM":
-                        cromossomo[gene] = self.problem._mutate(cromossomo,gene)
+                        cromossomo[gene] = self.problem._mutate(cromossomo, gene)
                     case _:
                         return random.choices((1, 0), k=self.dim_size)
         return cromossomo
@@ -317,14 +334,14 @@ class Ambiente:
         # print('Elite eval:',self.elite_evaluation)
         # end of execution
 
-    def run(self,step=10):
-        print('Execution started:')
+    def run(self, step=10):
+        print("Execution started:")
         for i in range(self.iterations):
-            if i % step ==0:
-                print('{:.2f}'.format((i / self.iterations)*100),'%')
+            if i % step == 0:
+                print("{:.2f}".format((i / self.iterations) * 100), "%")
             self.loop()
         self.save_elite()
         best = self.problem.decode(self.elite_population[0])
-        print('Best Solution: ',best)
-        print('Fitness:',self.elite_evaluation[0])
-        print('Objective value:',self.problem.objective_function(best))
+        print("Best Solution: ", best)
+        print("Fitness:", self.elite_evaluation[0])
+        print("Objective value:", self.problem.objective_function(best))
