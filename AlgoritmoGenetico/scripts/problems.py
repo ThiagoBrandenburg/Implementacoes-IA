@@ -206,11 +206,11 @@ class FabricaDeRadios:
         return penality
 
     def fitness(self, solution):
-        fit_value = (self.objective_function(solution) / 1360) + self.penality_factor * self.penality_function(solution)
+        fit_value = (self.objective_function(solution) / 1360) + (self.penality_factor * self.penality_function(solution))
         return fit_value
 
     def set_problem(self, config: dict) -> dict:
-        config["COD"] = "CUSTOM-INT"
+        config["COD"] = "INT"
         #config["DIM"] = 24
         #config["BOUND"] = [0, 3]
         return config

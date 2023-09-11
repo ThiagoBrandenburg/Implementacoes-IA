@@ -39,10 +39,10 @@ class Ambiente:
         self.problem = problem
         self.config = config
         self.config = problem.set_problem(config)
-        print('bound:',self.config['BOUND'])
         self.pop_size = int(self.config["POP"])
         self.dim_size = int(self.config["DIM"])
         self.bound_size = eval(self.config['BOUND'])
+        print('dim,bound:',self.dim_size,self.bound_size)
         self.population = self.generate_population()
         self.evaluation = self.evaluate(self.population)
 
@@ -77,7 +77,7 @@ class Ambiente:
         if self.config["COD"] == "CUSTOM-INT":
             return self.problem.generate_population(self.pop_size)
         else:
-            population = [self.gerar_individuo(gene) for gene in range(self.pop_size)]
+            population = [self.gerar_individuo(individuo) for individuo in range(self.pop_size)]
             return population
 
     def gerar_individuo(self,gene:int):
@@ -89,7 +89,8 @@ class Ambiente:
             case "INT":
                 #bound = list(map(int, self.config["BOUND"].strip("][ ").split(",")))
                 #bound = eval(self.config['BOUND'])
-                individuo = np.array([random.randint(*self.bound_size[gene]) for _ in range(dim)])
+                #print('(gr_indv)','bound:',self.bound_size,'gene:',gene,'pop_size',self.pop_size)
+                individuo = np.array([random.randint(self.bound_size[i][0],self.bound_size[i][1]-1) for i in range(dim)])
                 return individuo
             case "INT-PERM":
                 #bound = (0, dim)
@@ -207,34 +208,34 @@ class Ambiente:
         return mating_pool
 
     def _mutate(self, cromossomo: np.ndarray):
-        chance = random.random()   
-        if chance <= self.mutation_rate:
-            gene = random.randint(0,len(cromossomo)-1)
-            alelo = cromossomo[gene]
-            match self.config["COD"]:
-                case "BIN":
-                    cromossomo[gene] = not alelo
-                case "INT":
-                    # cr_std = cromossomo.std()
-                    # print("cr_std", cr_std)
-                    # cromossomo[gene] = alelo + random.randint(-cr_std, cr_std)
-                    cromossomo[gene] = random.randint(*self.bound_size[gene])
-                case "INT-PERM":
-                    g2 = random.randint(0, len(cromossomo) - 1)
-                    while g2 == gene:
+        for gene in range(self.dim_size):
+            chance = random.random()   
+            if chance <= self.mutation_rate:
+                alelo = cromossomo[gene]
+                match self.config["COD"]:
+                    case "BIN":
+                        cromossomo[gene] = not alelo
+                    case "INT":
+                        # cr_std = cromossomo.std()
+                        # print("cr_std", cr_std)
+                        # cromossomo[gene] = alelo + random.randint(-cr_std, cr_std)
+                        cromossomo[gene] = random.randint(*self.bound_size[gene])
+                    case "INT-PERM":
                         g2 = random.randint(0, len(cromossomo) - 1)
-                    aux = cromossomo[gene]
-                    cromossomo[gene] = cromossomo[g2]
-                    cromossomo[g2] = aux
-                case "REAL":
-                    # cr_std = cromossomo.std()
-                    # print("cr_std", cr_std)
-                    # cromossomo[gene] = alelo + random.random(-cr_std, cr_std)
-                    cromossomo[gene] = random.random() * (self.bound_size[gene][1] - self.bound_size[gene][0]) + self.bound_size[gene][0]
-                case "CUSTOM":
-                    cromossomo[gene] = self.problem._mutate(cromossomo,gene)
-                case _:
-                    return random.choices((1, 0), k=self.dim_size)
+                        while g2 == gene:
+                            g2 = random.randint(0, len(cromossomo) - 1)
+                        aux = cromossomo[gene]
+                        cromossomo[gene] = cromossomo[g2]
+                        cromossomo[g2] = aux
+                    case "REAL":
+                        # cr_std = cromossomo.std()
+                        # print("cr_std", cr_std)
+                        # cromossomo[gene] = alelo + random.random(-cr_std, cr_std)
+                        cromossomo[gene] = random.random() * (self.bound_size[gene][1] - self.bound_size[gene][0]) + self.bound_size[gene][0]
+                    case "CUSTOM":
+                        cromossomo[gene] = self.problem._mutate(cromossomo,gene)
+                    case _:
+                        return random.choices((1, 0), k=self.dim_size)
         return cromossomo
 
     def generate_mutation(self, population):
