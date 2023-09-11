@@ -16,6 +16,9 @@ if __name__ == '__main__':
 
     end = time.perf_counter() -start
     print('time:',end)
+    best= problem.decode(ambiente.elite_population[0])
+    print('Best Solution:', best)
+    print('Best Solution Objective Value (profit):',problem.objective_function(best))
     #fig, ax = plt.subplots(1,2,figsize=(12,5))
     sns.lineplot(ambiente.results_best,color='Red')#,ax=ax[0])
     sns.lineplot(ambiente.results_mean,color='Blue')#,ax=ax[0])

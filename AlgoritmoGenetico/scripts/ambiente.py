@@ -93,7 +93,8 @@ class Ambiente:
                 return individuo
             case "INT-PERM":
                 #bound = (0, dim)
-                individuo = random.sample(range(*self.bound_size[gene]), k=dim)
+                print(self.bound_size)
+                individuo = random.sample(range(self.bound_size[0][0],self.bound_size[0][1]), k=dim)
                 assert len(set(individuo)) == len(individuo)
                 return np.array(individuo)
             case "REAL":
@@ -118,7 +119,6 @@ class Ambiente:
                 ]
             )
             def fx(x):
-                print(x)
                 self.problem.fitness(self.problem.decode(x))
                 return x
             evaluation = np.array(Parallel(n_jobs=4)
@@ -148,7 +148,6 @@ class Ambiente:
             return evaluation
 
     def save_elite(self):
-        #print('eval:',self.evaluation)
         evaluation_positions_sorted = sorted(
             range(len(self.evaluation)), key=lambda x: self.evaluation[x], reverse=True
         )
@@ -184,16 +183,26 @@ class Ambiente:
         e1 = self._p_selection(replacement)
         e1 = e1 if e1 < e0 else e1 + 1
         return (self.population[e0], self.population[e1])
+    
+    def _estocastic_tournament(self,sample_size=2,best_chace=1):
+        participants = random.sample(range(self.pop_size),sample_size)
+        gene = self.evaluation[participants].argmax()
+        if random.random() > best_chace:
+            gene = self.evaluation[participants].argmin()
+        cromossomo =  self.population[gene]
+        return cromossomo
+
 
     def generate_mating_pool(self):
         """Gera a Mating pool com base na população"""
-        mating_pool = np.array(
-            [
-                self.roulette_wheel()[i]
-                for i in range(0, 2)
-                for _ in range(self.pop_size // 2)
-            ]
-        )
+        # mating_pool = np.array(
+        #     [
+        #         self.roulette_wheel()[i]
+        #         for i in range(0, 2)
+        #         for _ in range(self.pop_size // 2)
+        #     ]
+        # )
+        mating_pool = np.array([self._estocastic_tournament() for _ in range(self.pop_size)])
         self.mating_pool = mating_pool
         return mating_pool
 

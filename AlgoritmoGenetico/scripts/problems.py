@@ -196,7 +196,7 @@ class FabricaDeRadios:
 
     def objective_function(self, solution):
         """30*24+40*16=1360"""
-        objective_value = (30 * solution[0] + 40 * solution[1]) / 1360
+        objective_value = 30 * solution[0] + 40 * solution[1]
         return objective_value
 
     def penality_function(self, solution):
@@ -206,9 +206,7 @@ class FabricaDeRadios:
         return penality
 
     def fitness(self, solution):
-        fit_value = self.objective_function(
-            solution
-        ) + self.penality_factor * self.penality_function(solution)
+        fit_value = (self.objective_function(solution) / 1360) + self.penality_factor * self.penality_function(solution)
         return fit_value
 
     def set_problem(self, config: dict) -> dict:
