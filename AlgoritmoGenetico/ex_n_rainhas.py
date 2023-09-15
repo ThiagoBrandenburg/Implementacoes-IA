@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import time
 
 if __name__ == '__main__':
-    config = Leitor().loadConfig('AlgoritmoGenetico/data/data_nrainhas64.txt')
-    problem = Nrainhas(64)
+    config = Leitor().loadConfig('AlgoritmoGenetico/data/data_nrainhas128.txt')
+    problem = Nrainhas(128)
     start = time.time()
     start = time.perf_counter()
 

@@ -42,7 +42,7 @@ class Ambiente:
         self.pop_size = int(self.config["POP"])
         self.dim_size = int(self.config["DIM"])
         self.bound_size = eval(self.config["BOUND"])
-        print("dim,bound:", self.dim_size, self.bound_size)
+        #print("dim,bound:", self.dim_size, self.bound_size)
         self.population = self.generate_population()
         self.evaluation = self.evaluate(self.population)
 
@@ -71,7 +71,6 @@ class Ambiente:
         self.results_best = []
         self.results_mean = []
 
-        self.mutation_rate = 0.05
 
     def generate_population(self):
         if self.config["COD"] == "CUSTOM-INT":
@@ -197,27 +196,20 @@ class Ambiente:
         e1 = e1 if e1 < e0 else e1 + 1
         return (self.population[e0], self.population[e1])
 
-    def _estocastic_tournament(self, sample_size=2, best_chace=1):
+    def _estocastic_tournament(self, sample_size=2, best_chance=1):
         participants = random.sample(range(self.pop_size), sample_size)
         gene = self.evaluation[participants].argmax()
-        if random.random() > best_chace:
+        if random.random() > best_chance:
             gene = self.evaluation[participants].argmin()
         cromossomo = self.population[gene]
         return cromossomo
 
     def generate_mating_pool(self):
         """Gera a Mating pool com base na população"""
-        # mating_pool = np.array(
-        #     [
-        #         self.roulette_wheel()[i]
-        #         for i in range(0, 2)
-        #         for _ in range(self.pop_size // 2)
-        #     ]
-        # )
         mating_pool = np.array(
             [self._estocastic_tournament() for _ in range(self.pop_size)]
+            #[cromossomo for cromossomo in self.roulette_wheel() for _ in range(self.pop_size//2)]
         )
-        self.mating_pool = mating_pool
         return mating_pool
 
     def _mutate(self, cromossomo: np.ndarray):
@@ -275,20 +267,25 @@ class Ambiente:
     #     p1 = random.randint(0,len(cr1)-1)
     #     p2
     def _cycle_crossover(self, cr1, cr2):
-        sections = [0]
-        gene2 = cr2[0]
+        #sections = [0]
         first = cr1[0]
+        gene1 = cr1[0]
+        gene2 = cr2[0]
         max = len(cr1)
+        sections_aux = np.array([False for _ in range(max)])
         i = 0
         while gene2 != first:
             i = (i + 1) % max
             gene1 = cr1[i]
             if gene1 == gene2:
-                sections.append(i)
+                #sections.append(i)
+                sections_aux[i] = True
                 gene2 = cr2[i]
 
-        mated_cr1 = np.array([cr1[i] if i in sections else cr2[i] for i in range(max)])
-        mated_cr2 = np.array([cr2[i] if i in sections else cr1[i] for i in range(max)])
+        #mated_cr1 = np.array([cr1[i] if i in sections else cr2[i] for i in range(max)])
+        #mated_cr2 = np.array([cr2[i] if i in sections else cr1[i] for i in range(max)])
+        mated_cr1 = np.array([cr1[i] if sections_aux[i] is True else cr2[i] for i in range(max)])
+        mated_cr2 = np.array([cr2[i] if sections_aux[i] is True else cr1[i] for i in range(max)])
         # print('cr1:',cr1)
         # print('cr2:',cr2)
         # print('mated cr1:',mated_cr1)
@@ -313,26 +310,21 @@ class Ambiente:
 
     def loop(self):
         self.save_elite()
-        # print('Pop:',self.population)
-        self.generate_mating_pool()
-        self.mating_pool = self.generate_cross_over(self.mating_pool)
-        self.mating_pool = self.generate_mutation(self.mating_pool)
-        # print('Mutated:',self.mating_pool)
-        mating_pool_evaluation = self.evaluate(self.mating_pool)
-        # print([self.problem.decode(cromossomo) for cromossomo in self.mating_pool])
+        mating_pool = self.generate_mating_pool()
+        intermediary_population = self.generate_cross_over(mating_pool)
+        intermediary_population = self.generate_mutation(intermediary_population)
+        intermediary_evaluation = self.evaluate(intermediary_population)
         for elite, elite_eval in zip(self.elite_population, self.elite_evaluation):
-            pior = mating_pool_evaluation.argmin()
-            self.mating_pool[pior] = elite
-            mating_pool_evaluation[pior] = elite_eval
-        self.population = self.mating_pool
-        self.evaluation = mating_pool_evaluation
+            pior = intermediary_evaluation.argmin()
+            intermediary_population[pior] = elite
+            intermediary_evaluation[pior] = elite_eval
+        self.population = intermediary_population
+        self.evaluation = intermediary_evaluation
 
         # Add Results
         self.results_best.append(self.evaluation.max())
         self.results_mean.append(self.evaluation.mean())
 
-        # print('Elite eval:',self.elite_evaluation)
-        # end of execution
 
     def run(self, step=10):
         print("Execution started:")
