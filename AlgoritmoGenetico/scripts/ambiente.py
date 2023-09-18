@@ -120,44 +120,25 @@ class Ambiente:
             case _:
                 return random.choices((1, 0), k=dim)
 
-    def evaluate(self, population=None) -> np.ndarray:
+    def evaluate(self, population) -> np.ndarray:
         """Avalia uma população, caso não seja fornecido uma população como argumento, avalia self.population e atualiza/retorna self.evaluation"""
-        if type(population) == NoneType:
+        if self.parallel is False:
             evaluation = np.array(
                 [
                     self.problem.fitness(self.problem.decode(cromossomo))
-                    for cromossomo in self.population
+                    for cromossomo in population
                 ]
             )
-
-            def fx(x):
-                self.problem.fitness(self.problem.decode(x))
-                return x
-
+        else:
+            # def fx(x):
+            #     return self.problem.fitness()
             evaluation = np.array(
-                Parallel(n_jobs=4)(
-                    delayed(fx)(cromossomo) for cromossomo in self.population
+                Parallel(n_jobs=-1)(
+                    delayed(self.problem.fitness)(self.problem.decode(cromossomo))
+                    for cromossomo in population
                 )
             )
-            return evaluation
-        else:
-            if self.parallel is False:
-                evaluation = np.array(
-                    [
-                        self.problem.fitness(self.problem.decode(cromossomo))
-                        for cromossomo in population
-                    ]
-                )
-            else:
-                # def fx(x):
-                #     return self.problem.fitness()
-                evaluation = np.array(
-                    Parallel(n_jobs=-1)(
-                        delayed(self.problem.fitness)(self.problem.decode(cromossomo))
-                        for cromossomo in population
-                    )
-                )
-            return evaluation
+        return evaluation
 
     def save_elite(self):
         evaluation_positions_sorted = sorted(
@@ -207,7 +188,7 @@ class Ambiente:
     def generate_mating_pool(self):
         """Gera a Mating pool com base na população"""
         mating_pool = np.array(
-            [self._estocastic_tournament() for _ in range(self.pop_size)]
+            [self._estocastic_tournament(best_chance=0.9) for _ in range(self.pop_size)]
             #[cromossomo for cromossomo in self.roulette_wheel() for _ in range(self.pop_size//2)]
         )
         return mating_pool
@@ -262,12 +243,7 @@ class Ambiente:
         # print('mated',mated_cr1,mated_cr2)
         return mated_cr1, mated_cr2
 
-    # def _partially_matched_crossover(self,cr1,cr2):
-    #     half = len(cr1)//2
-    #     p1 = random.randint(0,len(cr1)-1)
-    #     p2
     def _cycle_crossover(self, cr1, cr2):
-        #sections = [0]
         first = cr1[0]
         gene1 = cr1[0]
         gene2 = cr2[0]
@@ -281,15 +257,8 @@ class Ambiente:
                 #sections.append(i)
                 sections_aux[i] = True
                 gene2 = cr2[i]
-
-        #mated_cr1 = np.array([cr1[i] if i in sections else cr2[i] for i in range(max)])
-        #mated_cr2 = np.array([cr2[i] if i in sections else cr1[i] for i in range(max)])
         mated_cr1 = np.array([cr1[i] if sections_aux[i] is True else cr2[i] for i in range(max)])
         mated_cr2 = np.array([cr2[i] if sections_aux[i] is True else cr1[i] for i in range(max)])
-        # print('cr1:',cr1)
-        # print('cr2:',cr2)
-        # print('mated cr1:',mated_cr1)
-        # print('mated cr2:',mated_cr2)
         return mated_cr1, mated_cr2
 
     def generate_cross_over(self, population):

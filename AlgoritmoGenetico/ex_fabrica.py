@@ -21,8 +21,7 @@ if __name__ == "__main__":
     print("Best Solution:", best)
     print("Best Evaluation",ambiente.elite_evaluation[0])
     print("Best Solution Objective Value (profit):", problem.objective_function(best))
-    for i in range(10):
-        print("Best Solution fitness:", problem.fitness(best))
+    print("Best Solution fitness:", problem.fitness(best))
     # fig, ax = plt.subplots(1,2,figsize=(12,5))
     sns.lineplot(ambiente.results_best, color="Red")  # ,ax=ax[0])
     sns.lineplot(ambiente.results_mean, color="Blue")  # ,ax=ax[0])
