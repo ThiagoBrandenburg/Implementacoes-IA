@@ -15,7 +15,14 @@ if __name__ == '__main__':
     ambiente.run(step=100)
 
     end = time.perf_counter() - start
+    problem.decode(ambiente.elite_population[0])
+
     print('time:',end)
+    best = problem.decode(ambiente.elite_population[0])
+    print("Best Solution:", best)
+    print("Best Evaluation",ambiente.elite_evaluation[0])
+    print("Best Solution Objective Value (Colisoes):", problem.objective_function(best))
+    print("Best Solution fitness:", problem.fitness(best))
     fig, ax = plt.subplots(1,2,figsize=(12,5))
     sns.lineplot(ambiente.results_best,color='Red',ax=ax[0])
     sns.lineplot(ambiente.results_mean,color='Blue',ax=ax[0])

@@ -100,7 +100,7 @@ class Ambiente:
                 return individuo
             case "INT-PERM":
                 # bound = (0, dim)
-                print(self.bound_size)
+                #print(self.bound_size)
                 individuo = random.sample(
                     range(self.bound_size[0][0], self.bound_size[0][1]), k=dim
                 )
@@ -145,7 +145,7 @@ class Ambiente:
                 evaluation = np.array(
                     [
                         self.problem.fitness(self.problem.decode(cromossomo))
-                        for cromossomo in self.population
+                        for cromossomo in population
                     ]
                 )
             else:
@@ -154,7 +154,7 @@ class Ambiente:
                 evaluation = np.array(
                     Parallel(n_jobs=-1)(
                         delayed(self.problem.fitness)(self.problem.decode(cromossomo))
-                        for cromossomo in self.population
+                        for cromossomo in population
                     )
                 )
             return evaluation
