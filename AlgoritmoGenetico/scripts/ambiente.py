@@ -33,18 +33,23 @@ class Problem:
 class Ambiente:
     type_dict = {"BIN": bool, "INT": int, "INT-PERM": int, "REAL": float}
 
-    def __init__(self, config: dict, problem: Problem, parallel=False) -> None:
+    def __init__(self, 
+                 config: dict, 
+                 problem: Problem,
+                 parallel=False,
+                 tournament_win_rate=0.9) -> None:
+        
         random.seed()
         self.parallel = parallel
         self.problem = problem
+        self.win_rate = tournament_win_rate
         self.config = config
         self.config = problem.set_problem(config)
         self.pop_size = int(self.config["POP"])
         self.dim_size = int(self.config["DIM"])
         self.bound_size = eval(self.config["BOUND"])
         #print("dim,bound:", self.dim_size, self.bound_size)
-        self.population = self.generate_population()
-        self.evaluation = self.evaluate(self.population)
+
 
         self.elitism = (
             int(self.config["ELITISM"]) if "ELITISM" in self.config.keys() else 1
@@ -64,6 +69,10 @@ class Ambiente:
             if "ITERATIONS" in self.config.keys()
             else 100
         )
+
+        self.population = self.generate_population()
+        self.evaluation = self.evaluate(self.population)
+
         self.elite_population = []
         self.elite_evaluation = []
         self.mating_pool = []
@@ -178,10 +187,10 @@ class Ambiente:
         e1 = e1 if e1 < e0 else e1 + 1
         return (self.population[e0], self.population[e1])
 
-    def _estocastic_tournament(self, sample_size=2, best_chance=1):
+    def _estocastic_tournament(self, sample_size=2, win_rate=1.0):
         participants = random.sample(range(self.pop_size), sample_size)
         gene = self.evaluation[participants].argmax()
-        if random.random() > best_chance:
+        if random.random() > win_rate:
             gene = self.evaluation[participants].argmin()
         cromossomo = self.population[gene]
         return cromossomo
@@ -189,7 +198,7 @@ class Ambiente:
     def generate_mating_pool(self):
         """Gera a Mating pool com base em self.population"""
         mating_pool = np.array(
-            [self._estocastic_tournament(best_chance=0.9) for _ in range(self.pop_size)]
+            [self._estocastic_tournament(win_rate=self.win_rate) for _ in range(self.pop_size)]
             #[cromossomo for cromossomo in self.roulette_wheel() for _ in range(self.pop_size//2)]
         )
         return mating_pool
@@ -296,14 +305,16 @@ class Ambiente:
         self.results_mean.append(self.evaluation.mean())
 
 
-    def run(self, step=10):
-        print("Execution started:")
+    def run(self, step=10,show=False):
+        if show is True:
+            print("Execution started:") 
         for i in range(self.iterations):
             if i % step == 0:
                 print("{:.2f}".format((i / self.iterations) * 100), "%")
             self.loop()
         self.save_elite()
         best = self.problem.decode(self.elite_population[0])
-        print("Best Solution: ", best)
-        print("Fitness:", self.elite_evaluation[0])
-        print("Objective value:", self.problem.objective_function(best))
+        if show is True:
+            print("Best Solution: ", best)
+            print("Fitness:", self.elite_evaluation[0])
+            print("Objective value:", self.problem.objective_function(best))
