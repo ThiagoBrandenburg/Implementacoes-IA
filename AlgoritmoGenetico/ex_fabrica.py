@@ -23,8 +23,8 @@ if __name__ == "__main__":
     print("Best Solution Objective Value (profit):", problem.objective_function(best))
     print("Best Solution fitness:", problem.fitness(best))
     # fig, ax = plt.subplots(1,2,figsize=(12,5))
-    sns.lineplot(ambiente.results_best, color="Red")  # ,ax=ax[0])
     sns.lineplot(ambiente.results_mean, color="Blue")  # ,ax=ax[0])
+    sns.lineplot(ambiente.results_best, color="Red")  # ,ax=ax[0])
     
     # sns.heatmap(problem.get_matrix(problem.decode(ambiente.elite_population[0])),linewidths=0.5,linecolor='Gray',cmap='gray',ax=ax[1])
     plt.show()

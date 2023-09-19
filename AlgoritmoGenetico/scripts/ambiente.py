@@ -187,7 +187,7 @@ class Ambiente:
         return cromossomo
 
     def generate_mating_pool(self):
-        """Gera a Mating pool com base na população"""
+        """Gera a Mating pool com base em self.population"""
         mating_pool = np.array(
             [self._estocastic_tournament(best_chance=0.9) for _ in range(self.pop_size)]
             #[cromossomo for cromossomo in self.roulette_wheel() for _ in range(self.pop_size//2)]
@@ -203,7 +203,7 @@ class Ambiente:
                     case "BIN":
                         cromossomo[gene] = not alelo
                     case "INT":
-                        # cr_std = cromossomo.std()
+                        # cr_std = round(cromossomo.std())
                         # print("cr_std", cr_std)
                         # cromossomo[gene] = alelo + random.randint(-cr_std, cr_std)
                         cromossomo[gene] = random.randint(*self.bound_size[gene])
