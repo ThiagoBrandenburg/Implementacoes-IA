@@ -121,7 +121,7 @@ class Ambiente:
                 return random.choices((1, 0), k=dim)
 
     def evaluate(self, population) -> np.ndarray:
-        """Avalia uma população, caso não seja fornecido uma população como argumento, avalia self.population e atualiza/retorna self.evaluation"""
+        """Avalia uma população com problem.fitness"""
         if self.parallel is False:
             evaluation = np.array(
                 [
@@ -141,6 +141,7 @@ class Ambiente:
         return evaluation
 
     def save_elite(self):
+        '''Infelizmente temos que salvar a elite economica deste algoritmo :'( '''
         evaluation_positions_sorted = sorted(
             range(len(self.evaluation)), key=lambda x: self.evaluation[x], reverse=True
         )
