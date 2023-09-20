@@ -226,3 +226,91 @@ class FabricaDeRadios:
 
     def fit_min(self, solution):
         return 1 - self.fitness(solution)
+
+
+class NrainhasSum:
+    def __init__(self, resolution=8,penality=-2) -> None:
+        self.penality = penality
+        self.resolution = resolution
+        self.max_colision = self._sumpa(1, resolution, resolution)
+        self.max_fit_value = self.objective_function([(i,self.resolution) for i in resolution])
+
+    def set_problem(self, config: dict) -> dict:
+        dim = int(config["DIM"])
+        config['BOUND'] = (
+            config['BOUND']
+            if 'BOUND' in config.keys()
+            else "[(0," + str(dim) + ")]"
+            )
+        config["COD"] = "INT-PERM"
+        return config
+
+    def encode(self, solucao: list[tuple[int]]) -> np.array:
+        """y=k*i + j sendo k a resolução do tabuleiro"""
+        cromossomo = np.array([elemento[1] for elemento in solucao])
+        return cromossomo
+
+    def decode(self, cromossomo: np.array) -> list[tuple[int]]:
+        solucao = [(i, cromossomo[i]) for i in range(len(cromossomo))]
+        return solucao
+
+    def _diagonal(self, queen1: tuple[int], queen2: tuple[int]):
+        q1 = queen1[0] - queen1[1] == queen2[0] - queen2[1]
+        q2 = queen1[0] + queen1[1] == queen2[0] + queen2[1]
+        return q1 or q2
+
+    def _colision(self, queen1: tuple[int], queen2: tuple[int]) -> bool:
+        if (
+            queen1[0] == queen2[0]
+            or queen1[1] == queen2[1]
+            or self._diagonal(queen1, queen2)
+        ):
+            return True
+        else:
+            return False
+
+    def _sumpa(self, min, max, n):
+        return (n / 2) * (min + max)
+
+    def _number_of_colisions(self, solution):
+        """Atualmente utilizando só as diagonais"""
+        colisions = sum(
+            [
+                self._diagonal(solution[i], solution[j])
+                for i in range(self.resolution)
+                for j in range(i)
+            ]
+        )
+        return colisions
+    
+    def objective_function(self,solucao:list[tuple[int,int]]):
+        value = 0.0
+        for coor in solucao:
+                k = coor[0]*self.resolution + coor[1]
+                value +=  math.sqrt(k) if k % 2 ==1 else math.log(k,10)
+        return value
+    
+    def is_valid(self,solution):
+        if self._number_of_colisions(solution) == 0.0:
+            return True 
+        else:
+            False
+
+    def fitness(self, solution):
+        """Perfect solution is one, worst solution is zero"""
+        fit_value = (self.objective_function(solution)/self.max_fit_value) + self.penality*(self._number_of_colisions/self.max_colision)
+        return fit_value
+
+    def fit_max(self, solution):
+        return self.fitness(solution)
+
+    def fit_min(self, solution):
+        return 1 - self.fitness(solution)
+
+    def get_matrix(self, solution):
+        matrix = np.array(
+            [[0 for _ in range(self.resolution)] for _ in range(self.resolution)]
+        )
+        for queen in solution:
+            matrix[queen[0]][queen[1]] = 1
+        return matrix
