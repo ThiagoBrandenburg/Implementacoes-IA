@@ -14,6 +14,9 @@ class Problem:
     def objective_function(self, solution) -> any:
         ...
 
+    def penality_function(self, solution) -> any:
+        ...
+
     def fitness(self, solution) -> any:
         ...
 
@@ -280,12 +283,19 @@ class NrainhasSum:
             ]
         )
         return colisions
+    
+    def penality_function(self, solution):
+        penality_value = self._number_of_colisions(solution)/self.max_colision
+        return penality_value
 
     def objective_function(self, solucao: list[tuple[int, int]]):
         value = 0.0
         for coor in solucao:
-            k = coor[0] * self.resolution + coor[1]
-            value += math.sqrt(k) if k % 2 == 1 else math.log(k, 10)
+            linha = coor[0] + 1
+            coluna = coor[1] + 1
+            k =  coor[0]*self.resolution + coluna
+            #print('X:',coor[0],'y:',coor[1],'k',k)
+            value += math.sqrt(k) if linha % 2 == 1 else math.log(k, 10)
         return value
 
     def is_valid(self, solution):
@@ -296,10 +306,10 @@ class NrainhasSum:
 
     def fitness(self, solution):
         """Perfect solution is one, worst solution is zero"""
-        print("max fit value:", self.max_fit_value)
+        #print("max fit value:", self.max_fit_value)
         fit_value = (
             self.objective_function(solution) / self.max_fit_value
-        ) + self.penality * (self._number_of_colisions(solution) / self.max_colision)
+        ) + (self.penality * self.penality_function(solution))
         return fit_value
 
     def fit_max(self, solution):

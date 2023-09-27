@@ -14,6 +14,9 @@ class Problem:
     def objective_function(self, solution) -> any:
         ...
 
+    def penality_function(self, solution) -> any:
+        ...
+
     def fitness(self, solution) -> any:
         ...
 
@@ -37,12 +40,14 @@ class Ambiente:
                  config: dict, 
                  problem: Problem,
                  parallel=False,
-                 tournament_win_rate=0.9) -> None:
+                 tournament_win_rate=0.9,
+                 save_penality = False) -> None:
         
         random.seed()
         self.parallel = parallel
         self.problem = problem
         self.win_rate = tournament_win_rate
+        self.save_penality = save_penality
         self.config = config
         self.config = problem.set_problem(config)
         self.pop_size = int(self.config["POP"])
@@ -79,6 +84,8 @@ class Ambiente:
 
         self.results_best = []
         self.results_mean = []
+        self.results_penality = []
+
 
 
     def generate_population(self):
@@ -303,6 +310,14 @@ class Ambiente:
         # Add Results
         self.results_best.append(self.evaluation.max())
         self.results_mean.append(self.evaluation.mean())
+        if self.save_penality is True:
+            self.results_penality.append(
+                self.problem.penality_function(
+                    self.problem.decode(
+                        self.population[self.evaluation.argmax()]
+                    )
+                )
+            )
 
 
     def run(self, step=10,show=False):
