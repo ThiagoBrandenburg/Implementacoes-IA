@@ -34,16 +34,32 @@ class Problem:
 
 
 class Nrainhas:
-    def __init__(self, resolution=8) -> None:
-        self.resolution = resolution
-        self.weight = self._sumpa(1, resolution, resolution)
+    max_colision:int
+    resolution:int
+    def __init__(self) -> None:
+        self.max_colision = None
+        self.resolution = None
 
+    
     def set_problem(self, config: dict) -> dict:
+        '''
+        Comunicação entre o problema e o algoritmo.
+        O ambiente passa uma configuração para o problema,
+        que seta as configurações, e as retorna 
+        para o ambiente com parametros adicionais (caso necessário)
+        '''
         dim = int(config["DIM"])
         config["BOUND"] = (
             config["BOUND"] if "BOUND" in config.keys() else "[(0," + str(dim) + ")]"
         )
+        self.penality = (
+            float(config['PENALITY'])
+            if 'PENALITY' in config.keys()
+            else -1.0
+        )
+        self.resolution = int(config['DIM'])
         config["COD"] = "INT-PERM"
+        self.max_colision = self._sumpa(1, self.resolution, self.resolution)
         return config
 
     def encode(self, solucao: list[tuple[int]]) -> np.array:
@@ -86,7 +102,7 @@ class Nrainhas:
 
     def fitness(self, solution):
         """Perfect solution is one, worst solution is zero"""
-        fit_value = (self.weight - self.objective_function(solution)) / self.weight
+        fit_value = (self.max_colision - self.objective_function(solution)) / self.max_colision
         return fit_value
 
     def fit_max(self, solution):

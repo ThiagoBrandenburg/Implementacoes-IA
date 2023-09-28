@@ -1,6 +1,6 @@
 from typing import Dict
 import json
-
+import os
 
 class Leitor:
     pathConfig: str
@@ -15,7 +15,7 @@ class Leitor:
         return key,value
 
 
-    def loadConfig(self, pathDatabase: str) -> dict:
+    def loadConfig(self, pathDatabase: str | os.PathLike) -> dict:
         # path = Path(pathDatabase)
         # print(path.absolute())
         try:
