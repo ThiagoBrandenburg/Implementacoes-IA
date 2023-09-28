@@ -2,7 +2,7 @@ import random
 import numpy as np
 from types import NoneType
 from joblib import Parallel, delayed
-
+from tqdm import tqdm
 
 class Problem:
     def encode(self, solution) -> np.array:
@@ -39,23 +39,17 @@ class Ambiente:
     def __init__(self, 
                  config: dict, 
                  problem: Problem,
-                 parallel=False,
-                 tournament_win_rate=0.9,
-                 save_penality = False) -> None:
+                 parallel=False) -> None:
         
         random.seed()
+        #Declaração das variáveis
         self.parallel = parallel
         self.problem = problem
-        self.win_rate = tournament_win_rate
-        self.save_penality = save_penality
         self.config = config
         self.config = problem.set_problem(config)
         self.pop_size = int(self.config["POP"])
         self.dim_size = int(self.config["DIM"])
         self.bound_size = eval(self.config["BOUND"])
-        #print("dim,bound:", self.dim_size, self.bound_size)
-
-
         self.elitism = (
             int(self.config["ELITISM"]) if "ELITISM" in self.config.keys() else 1
         )
@@ -74,14 +68,26 @@ class Ambiente:
             if "ITERATIONS" in self.config.keys()
             else 100
         )
+        self.save_penality = (
+            bool(self.config["SAVE_PENALITY"])
+            if "SAVE_PENALITY" in self.config.keys()
+            else False         
+        )
+        self.win_rate = (
+            float(self.config['WIN_RATE'])
+            if 'WIN_RATE' in self.config.keys()
+            else 0.9
+        )
 
+
+        #Geração da população inicial
         self.population = self.generate_population()
         self.evaluation = self.evaluate(self.population)
 
+        #Resultados
         self.elite_population = []
         self.elite_evaluation = []
         self.mating_pool = []
-
         self.results_best = []
         self.results_mean = []
         self.results_penality = []
@@ -323,9 +329,7 @@ class Ambiente:
     def run(self, step=10,show=False):
         if show is True:
             print("Execution started:") 
-        for i in range(self.iterations):
-            if i % step == 0:
-                print("{:.2f}".format((i / self.iterations) * 100), "%")
+        for _ in tqdm(range(self.iterations)):
             self.loop()
         self.save_elite()
         best = self.problem.decode(self.elite_population[0])

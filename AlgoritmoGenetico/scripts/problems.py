@@ -230,20 +230,36 @@ class FabricaDeRadios:
 
 
 class NrainhasSum:
-    def __init__(self, resolution=8, penality=-2) -> None:
-        self.penality = penality
-        self.resolution = resolution
-        self.max_colision = self._sumpa(1, resolution, resolution)
-        self.max_fit_value = self.objective_function(
-            [(i, self.resolution) for i in range(self.resolution)]
-        )
+    max_colision: int
+    max_fit_value: float
+    def __init__(self) -> None:
+        self.penality = -1
+        self.resolution = None
+        self.max_colision = None
+        self.max_fit_value = None
 
     def set_problem(self, config: dict) -> dict:
+        '''
+        Comunicação entre o problema e o algoritmo.
+        O ambiente passa uma configuração para o problema,
+        que seta as configurações, e as retorna 
+        para o ambiente com parametros adicionais (caso necessário)
+        '''
         dim = int(config["DIM"])
         config["BOUND"] = (
             config["BOUND"] if "BOUND" in config.keys() else "[(0," + str(dim) + ")]"
         )
+        self.penality = (
+            float(config['PENALITY'])
+            if 'PENALITY' in config.keys()
+            else -1.0
+        )
+        self.resolution = int(config['DIM'])
         config["COD"] = "INT-PERM"
+        self.max_colision = self._sumpa(1, self.resolution, self.resolution)
+        self.max_fit_value = self.objective_function(
+            [(i, self.resolution) for i in range(self.resolution)]
+        )
         return config
 
     def encode(self, solucao: list[tuple[int]]) -> np.array:
@@ -307,9 +323,13 @@ class NrainhasSum:
     def fitness(self, solution):
         """Perfect solution is one, worst solution is zero"""
         #print("max fit value:", self.max_fit_value)
-        fit_value = (
-            self.objective_function(solution) / self.max_fit_value
-        ) + (self.penality * self.penality_function(solution))
+            
+        part1 = self.objective_function(solution) / self.max_fit_value
+        #print('part1',part1, 'fit(solution)=',self.objective_function(solution),'max_fit_value=',self.max_fit_value)
+
+        part2 = (self.penality * self.penality_function(solution))
+        
+        fit_value = part1 + part2
         return fit_value
 
     def fit_max(self, solution):
