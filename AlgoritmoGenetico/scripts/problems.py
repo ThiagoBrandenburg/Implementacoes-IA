@@ -3,6 +3,7 @@ import math
 import random
 import seaborn as sns
 from enum import Enum
+from collections import Counter
 
 
 class Problem:
@@ -421,20 +422,26 @@ class Labirinto:
                 j+=1
         return (i,j)
     
-    def possible_moves(self,tile):
+    def possible_moves(self,tile,history=[]):
         moves = []
         for move in self.Move:
             next = self.next_tile(tile,move.value)
             tile_value = self.lab_map[next[0]][next[1]]
-            if (tile_value != self.Tile.WALL.value) and (next[0] > 0) and (next[1] > 0):
+            if ((tile_value != self.Tile.WALL.value) 
+                and (next[0] > 0) 
+                and (next[1] > 0) 
+                and (next not in history)):
                 moves.append(move.value)
-        return moves
+        if len(moves) == 0:
+            return [self.Move.STAND.value]
+        else:
+            return moves
 
     def decode(self, cromossomo: np.array) -> any:
         current_tile = self.start
         solution = [current_tile]
         for alelo in cromossomo:
-            possibilites = self.possible_moves(current_tile)
+            possibilites = self.possible_moves(current_tile,solution)
             #print('len(possibilites)',len(possibilites),' alelo:',alelo)
             chosen_pos = math.floor(len(possibilites)*alelo)
             chosen_move = possibilites[chosen_pos]
@@ -464,7 +471,7 @@ class Labirinto:
         return value
 
     def penality_function(self, solution) -> any:
-        ...
+        contador = Counter(solution)
 
     def fitness(self, solution) -> any:
         return 1.0 - (self.objective_function(solution)/self.max_distance)
