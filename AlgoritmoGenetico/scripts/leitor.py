@@ -37,5 +37,11 @@ class Leitor:
             return d   
         except: Exception('Erro de leitura das configuracoes')
         
-
-
+    def loadJson(self, pathJson: str | os.PathLike):
+        config = {}
+        try:
+            with open(pathJson) as arquivo:
+                dados = arquivo.read()
+                config = json.loads(dados)
+            return config
+        except: Exception('Erro na leitura do Json')

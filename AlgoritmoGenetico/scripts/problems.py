@@ -2,6 +2,7 @@ import numpy as np
 import math
 import random
 import seaborn as sns
+from enum import Enum
 
 
 class Problem:
@@ -361,3 +362,119 @@ class NrainhasSum:
         for queen in solution:
             matrix[queen[0]][queen[1]] = 1
         return matrix
+
+
+
+class Labirinto:
+    '''
+    Codificação é um vetor de inteiros de 100 posições
+    os movimentos são parado, direita, esquerda, cima, baixo
+    '''
+    lab_map: np.ndarray
+    lab_resolution: tuple[int,int]
+    path_size: int
+    start: tuple[int,int]
+    end: tuple[int,int]
+    class Tile(Enum):
+        WALL = 0
+        PATH = 1
+        START = 2
+        END = 3
+    class Move(Enum):
+        STAND = 0
+        UP = 1
+        DOWN = 2
+        LEFT = 3
+        RIGHT = 4
+
+    def __init__(self) -> None:
+
+        self.lab_map = None
+        self.lab_resolution = None
+        self.path_size = None
+    
+    def set_problem(self, config: dict) -> dict:
+        self.lab_map = np.array(config['MAP'])
+        self.lab_resolution = self.lab_map.shape
+        self.max_distance = self._euclidian_distance((0,0),self.lab_resolution)
+        self.path_size = config['DIM']
+        aux = np.where(self.lab_map == self.Tile.START.value)
+        self.start = (aux[0][0], aux[1][0])
+        aux = np.where(self.lab_map == self.Tile.END.value)
+        self.end = (aux[0][0], aux[1][0])
+        config['BOUND'] = '['+','.join(['(0.0,0.9999999)' for _ in range(self.path_size)])+']'
+        return config
+    
+    def _euclidian_distance(self,p1:tuple,p2:tuple):
+        return math.sqrt((p1[0] - p2[0])**2 + (p1[1]-p2[1])**2)
+
+    def next_tile(self,tile1,move):
+        i,j = tile1
+        match move:
+            case self.Move.UP.value:
+                i-=1
+            case self.Move.DOWN.value:
+                i+=1
+            case self.Move.LEFT.value:
+                j-=1
+            case self.Move.RIGHT.value:
+                j+=1
+        return (i,j)
+    
+    def possible_moves(self,tile):
+        moves = []
+        for move in self.Move:
+            next = self.next_tile(tile,move.value)
+            tile_value = self.lab_map[next[0]][next[1]]
+            if (tile_value != self.Tile.WALL.value) and (next[0] > 0) and (next[1] > 0):
+                moves.append(move.value)
+        return moves
+
+    def decode(self, cromossomo: np.array) -> any:
+        current_tile = self.start
+        solution = [current_tile]
+        for alelo in cromossomo:
+            possibilites = self.possible_moves(current_tile)
+            #print('len(possibilites)',len(possibilites),' alelo:',alelo)
+            chosen_pos = math.floor(len(possibilites)*alelo)
+            chosen_move = possibilites[chosen_pos]
+            next_t = self.next_tile(current_tile,chosen_move)
+            solution.append(next_t)
+            current_tile = next_t
+        return solution
+    
+    def encode(self, solution) -> np.array:
+        pass
+
+    def _encode_move(self,tile1,tile2):
+        if tile1[0] > tile2[0]:
+            return self.Move.UP.value
+        elif tile1[0] < tile2[0]:
+            return self.Move.DOWN.value
+        elif tile1[1] > tile2[1]:
+            return self.Move.LEFT.value
+        elif tile1[1] < tile2[1]:
+            return self.Move.RIGHT.value
+        else:
+            return self.Move.STAND
+        
+
+    def objective_function(self, solution) -> any:
+        value = self._euclidian_distance(solution[-1],self.end)
+        return value
+
+    def penality_function(self, solution) -> any:
+        ...
+
+    def fitness(self, solution) -> any:
+        return 1.0 - (self.objective_function(solution)/self.max_distance)
+
+    def generate_population(self, pop_size) -> list:
+        ...
+
+    def fit_max(self, solution) -> any:
+        return self.fitness(solution)
+
+    def fit_min(self, solution) -> any:
+        return self.objective_function(solution)/self.max_distance
+
