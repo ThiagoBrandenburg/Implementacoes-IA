@@ -422,15 +422,14 @@ class Labirinto:
                 j+=1
         return (i,j)
     
-    def possible_moves(self,tile,history=[]):
+    def possible_moves(self,tile):
         moves = []
         for move in self.Move:
             next = self.next_tile(tile,move.value)
             tile_value = self.lab_map[next[0]][next[1]]
             if ((tile_value != self.Tile.WALL.value) 
                 and (next[0] > 0) 
-                and (next[1] > 0) 
-                and (next not in history)):
+                and (next[1] > 0)):
                 moves.append(move.value)
         if len(moves) == 0:
             return [self.Move.STAND.value]
