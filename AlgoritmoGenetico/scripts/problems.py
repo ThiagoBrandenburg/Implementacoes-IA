@@ -422,14 +422,15 @@ class Labirinto:
                 j+=1
         return (i,j)
     
-    def possible_moves(self,tile):
+    def possible_moves(self,tile,history):
         moves = []
         for move in self.Move:
             next = self.next_tile(tile,move.value)
             tile_value = self.lab_map[next[0]][next[1]]
             if ((tile_value != self.Tile.WALL.value) 
                 and (next[0] > 0) 
-                and (next[1] > 0)):
+                and (next[1] > 0)
+                and next not in history):
                 moves.append(move.value)
         if len(moves) == 0:
             return [self.Move.STAND.value]
@@ -440,7 +441,7 @@ class Labirinto:
         current_tile = self.start
         solution = [current_tile]
         for alelo in cromossomo:
-            possibilites = self.possible_moves(current_tile)
+            possibilites = self.possible_moves(current_tile,solution)
             #print('len(possibilites)',len(possibilites),' alelo:',alelo)
             chosen_pos = math.floor(len(possibilites)*alelo)
             chosen_move = possibilites[chosen_pos]
@@ -466,18 +467,21 @@ class Labirinto:
         
 
     def objective_function(self, solution) -> any:
-        if solution[-1] == self.end:
-            return 1.0
-        else:
-            return 0.0
+        value = self._euclidian_distance(solution[-1],self.end)/self.max_distance
+        return value
 
     def penality_function(self, solution) -> any:
         counter = Counter(solution)
-        total_rept = sum(qtd > 1 for qtd in counter.values())
-        return total_rept
+        value = sum(qtd > 1 for qtd in counter.values())/self.path_size
+        return value
 
     def fitness(self, solution) -> any:
-        return self.objective_function(solution) + self.penality_function(solution)
+        sum_factor = 1.0- self.objective_function(solution)
+        return sum_factor
+        # if sum_factor == 1.0:
+        #     return sum_factor
+        # else:
+        #     return  sum_factor #- self.penality_function(solution)
 
     def fit_max(self, solution) -> any:
         return self.fitness(solution)
