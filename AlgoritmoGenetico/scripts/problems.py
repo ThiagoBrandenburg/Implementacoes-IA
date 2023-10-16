@@ -440,7 +440,7 @@ class Labirinto:
         current_tile = self.start
         solution = [current_tile]
         for alelo in cromossomo:
-            possibilites = self.possible_moves(current_tile,solution)
+            possibilites = self.possible_moves(current_tile)
             #print('len(possibilites)',len(possibilites),' alelo:',alelo)
             chosen_pos = math.floor(len(possibilites)*alelo)
             chosen_move = possibilites[chosen_pos]
@@ -466,21 +466,25 @@ class Labirinto:
         
 
     def objective_function(self, solution) -> any:
-        value = self._euclidian_distance(solution[-1],self.end)
-        return value
+        if solution[-1] == self.end:
+            return 1.0
+        else:
+            return 0.0
 
     def penality_function(self, solution) -> any:
-        contador = Counter(solution)
+        counter = Counter(solution)
+        total_rept = sum(qtd > 1 for qtd in counter.values())
+        return total_rept
 
     def fitness(self, solution) -> any:
-        return 1.0 - (self.objective_function(solution)/self.max_distance)
-
-    def generate_population(self, pop_size) -> list:
-        ...
+        return self.objective_function(solution) + self.penality_function(solution)
 
     def fit_max(self, solution) -> any:
         return self.fitness(solution)
 
     def fit_min(self, solution) -> any:
-        return self.objective_function(solution)/self.max_distance
+        return 1 -self.fitness(solution)
+    
+    def generate_population(self, pop_size) -> list:
+        pass
 
