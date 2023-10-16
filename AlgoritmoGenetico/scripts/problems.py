@@ -478,10 +478,6 @@ class Labirinto:
     def fitness(self, solution) -> any:
         sum_factor = 1.0- self.objective_function(solution)
         return sum_factor
-        # if sum_factor == 1.0:
-        #     return sum_factor
-        # else:
-        #     return  sum_factor #- self.penality_function(solution)
 
     def fit_max(self, solution) -> any:
         return self.fitness(solution)
@@ -489,6 +485,11 @@ class Labirinto:
     def fit_min(self, solution) -> any:
         return 1 -self.fitness(solution)
     
+    def get_matrix(self,solution):
+        best_map = np.array([[1 if (i,j) in solution else 0 for j in range(self.lab_map.shape[1])] for i in range(self.lab_map.shape[0])])
+        total_map = best_map + self.lab_map
+        return total_map
+
     def generate_population(self, pop_size) -> list:
         pass
 
