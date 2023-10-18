@@ -4,7 +4,7 @@
     "DIM":100,
     "ITERATIONS":1000,
     "TYPE":"LABIRINTO",
-    "MUTATION_RATE":0.03,
+    "MUTATION_RATE":0.02,
     "CROSSOVER_RATE":0.8,
     "PENALITY":-1.0,
     "ELITISM":1,
