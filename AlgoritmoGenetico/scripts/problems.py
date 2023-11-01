@@ -399,6 +399,11 @@ class Labirinto:
         self.lab_resolution = self.lab_map.shape
         self.max_distance = self._euclidian_distance((0,0),self.lab_resolution)
         self.path_size = config['DIM']
+        self.penality = (
+            float(config['PENALITY'])
+            if 'PENALITY' in config.keys()
+            else -1.0
+        )
         aux = np.where(self.lab_map == self.Tile.START.value)
         self.start = (aux[0][0], aux[1][0])
         aux = np.where(self.lab_map == self.Tile.END.value)
@@ -467,17 +472,22 @@ class Labirinto:
         
 
     def objective_function(self, solution) -> any:
-        value = self._euclidian_distance(solution[-1],self.end)/self.max_distance
+        value = self._euclidian_distance(solution[-1],self.end)
+        return value
+
+    def _path_size(self,solution) -> any:
+        value = sum([0.0 if move == self.Move.STAND.value else 1.0 for move in solution])
         return value
 
     def penality_function(self, solution) -> any:
-        counter = Counter(solution)
-        value = sum(qtd > 1 for qtd in counter.values())/self.path_size
+        value = self._path_size(solution)/self.path_size
         return value
 
     def fitness(self, solution) -> any:
-        sum_factor = 1.0- self.objective_function(solution)
-        return sum_factor
+        fit_value = 1.0- (self.objective_function(solution)/self.max_distance)
+        penality_value = self.penality_function(solution)
+        value = fit_value + self.penality * penality_value
+        return value
 
     def fit_max(self, solution) -> any:
         return self.fitness(solution)

@@ -3,6 +3,7 @@ import numpy as np
 from types import NoneType
 from joblib import Parallel, delayed
 from tqdm import tqdm
+import itertools 
 
 class Problem:
     def encode(self, solution) -> np.array:
@@ -43,6 +44,7 @@ class Ambiente:
         
         random.seed()
         #Declaração das variáveis
+        self.counter = 0
         self.parallel = parallel
         self.problem = problem
         self.config = config
@@ -78,6 +80,16 @@ class Ambiente:
             if 'WIN_RATE' in self.config.keys()
             else 0.9
         )
+        self.dizimate = (
+            bool(self.config['DIZIMATE'])
+            if 'DIZIMATE' in self.config.keys()
+            else True
+        )
+        self.dizimation_interval = (
+            int(self.config['DIZIMATION_INTERVAL'])
+            if 'DIZIMATION_INTERVAL' in self.config.keys()
+            else 100
+        )
 
 
         #Geração da população inicial
@@ -103,7 +115,7 @@ class Ambiente:
             ]
             return population
 
-    def gerar_individuo(self, gene: int):
+    def gerar_individuo(self, pos: int):
         dim = int(self.config["DIM"])
         match self.config["COD"]:
             case "BIN":
@@ -112,7 +124,7 @@ class Ambiente:
             case "INT":
                 # bound = list(map(int, self.config["BOUND"].strip("][ ").split(",")))
                 # bound = eval(self.config['BOUND'])
-                # print('(gr_indv)','bound:',self.bound_size,'gene:',gene,'pop_size',self.pop_size)
+                # print('(gr_indv)','bound:',self.bound_size,'pos:',pos,'pop_size',self.pop_size)
                 individuo = np.array(
                     [
                         random.randint(self.bound_size[i][0], self.bound_size[i][1] - 1)
@@ -133,8 +145,8 @@ class Ambiente:
                 individuo = np.array(
                     [
                         random.random()
-                        * (self.bound_size[gene][1] - self.bound_size[gene][0])
-                        + self.bound_size[gene][0]
+                        * (self.bound_size[pos][1] - self.bound_size[pos][0])
+                        + self.bound_size[pos][0]
                         for _ in range(dim)
                     ]
                 )
@@ -299,6 +311,13 @@ class Ambiente:
             else:
                 mated_population += [cr1, cr2]
         return mated_population
+    
+    def dizimate_population(self, population):
+        roman_line = random.sample(range(self.pop_size), self.pop_size//2)
+        for soldier in roman_line:
+            population[soldier] = self.gerar_individuo(soldier)
+        return population
+
 
     def loop(self):
         self.save_elite()
@@ -306,6 +325,18 @@ class Ambiente:
         intermediary_population = self.generate_cross_over(mating_pool)
         intermediary_population = self.generate_mutation(intermediary_population)
         intermediary_evaluation = self.evaluate(intermediary_population)
+
+        if len(self.results_best) > 1:
+            if self.results_best[-1] == self.results_best[-2]:
+                self.counter +=1
+            else:
+                self.counter = 0
+                
+        if self.counter >= self.dizimation_interval:
+            intermediary_population = self.dizimate_population(intermediary_population)
+            intermediary_evaluation = self.evaluate(intermediary_population)
+            self.counter = 0
+
         for elite, elite_eval in zip(self.elite_population, self.elite_evaluation):
             pior = intermediary_evaluation.argmin()
             intermediary_population[pior] = elite
@@ -324,6 +355,8 @@ class Ambiente:
                     )
                 )
             )
+
+
 
 
     def run(self, step=10,show=False):
