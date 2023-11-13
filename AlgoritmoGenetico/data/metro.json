@@ -1,5 +1,5 @@
 {
-    "COD":"INT-PERM",
+    "COD":"BIN",
     "POP":30,
     "DIM":100,
     "ITERATIONS":1000,
@@ -10,7 +10,8 @@
     "ELITISM":1,
     "WIN_RATE":0.9,
     "DIZIMATION_INTERVAL":100,
+    "VELOCIDADE":40,
     "START":"E7",
     "END":"E14",
-    "MAP": "C:\\Users\\thiag\\Documents\\UDESC\\Laboratorio\\Implementacoes\\Implementacoes-IA\\AlgoritmoGenetico\\data\\metro.xlsx"
+    "MAP": "data/metro.xlsx"
 }

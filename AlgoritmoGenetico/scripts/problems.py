@@ -509,10 +509,20 @@ class Metro:
 
 
     def set_problem(self, config: dict) -> dict:
-        self.distance_dataframe = pd.read_excel(config['MAP'],index_col='Estacao')
+        print("UEPA")
+        self.distance_dataframe = pd.read_excel(config['MAP'],
+                                                index_col='Estacao',
+                                                sheet_name='distancia_real')
+        self.straight_distance_dataframe = pd.read_excel(config['MAP'],
+                                                         sheet_name='distancia_reta',
+                                                         index_col='Estacao')
         self.number_of_stations = self.distance_dataframe.columns.__len__() -1
+        self.stations = list(self.distance_dataframe.columns[1:])
         self.start = config['START']
         self.end = config['END']
+        self.velocity = config['VELOCIDADE']
+        self.stop_time = 5/60
+        print(self.stations,self.start,self.end)
         config['DIM'] = self.number_of_stations -2
         self.penality = (
             float(config['PENALITY'])
@@ -520,9 +530,9 @@ class Metro:
             else -1.0
         )
         config['COD'] = 'INT-PERM'
-        config['BOUND'] = '[(0,'+str(self.number_of_stations -2)+')]'
+        config['BOUND'] = '[(-1,'+str(self.number_of_stations -2)+')]'
         #config['BOUND'] = '['+','.join(['(0.0,0.9999999)' for _ in range(self.path_size)])+']'
-        possible_paths = list(range(0,self.number_of_stations))
+        possible_paths = self.stations.copy()
         possible_paths.remove(self.start)
         possible_paths.remove(self.end)
         zipped_path = [(i,j) for i,j in enumerate(possible_paths)]
@@ -537,18 +547,49 @@ class Metro:
         else:
             value = self.distance_dataframe.loc[e2,e1]
         return value
+
+    def _straight_distance(self,e1,e2):
+        '''return distance between stations'''
+        value = np.nan
+        if e1 < e2:
+            value = self.straight_distance_dataframe.loc[e1,e2]
+        else:
+            value = self.straight_distance_dataframe.loc[e2,e1]
+        return value
     
     def encode(self, solution) -> np.array:
         ...
 
     def decode(self, cromossomo: np.array) -> any:
-        solution = []
-        for gene, alelo in enumerate(cromossomo):
+        solution = [self.start]
+        for alelo in cromossomo:
+            if alelo == -1:
+                break
+            else:
+                solution.append(self.stationDecoderDict[alelo])
+        solution.append(self.end)
         return solution
 
 
     def objective_function(self, solution) -> any:
-        ...
+        '''Retorna o tempo de viagem em horas'''
+        tempo_de_parada = (len(solution) - 2)*self.stop_time
+        tempo_de_trajeto = 0.0
+        pivot = self.start
+        for estacao in solution[1:-1]:
+            value = self._distance(pivot,estacao)
+            print(type(value),value)
+            if np.isnan(value):
+                print('entroo')
+                value = self._straight_distance(pivot,estacao)
+                print('teste:',value)
+            tempo_de_trajeto += value
+            pivot = estacao
+        tempo_de_trajeto /= self.velocity
+        print('tempos',tempo_de_parada,tempo_de_trajeto)
+        tempo_total = tempo_de_parada + tempo_de_trajeto
+        return tempo_total
+
 
     def penality_function(self, solution) -> any:
         ...
