@@ -1,9 +1,8 @@
 import numpy as np
 import math
 import random
-import seaborn as sns
+import pandas as pd
 from enum import Enum
-from collections import Counter
 
 
 class Problem:
@@ -503,3 +502,65 @@ class Labirinto:
     def generate_population(self, pop_size) -> list:
         pass
 
+
+class Metro:
+    def __init__(self) -> None:
+        pass
+
+
+    def set_problem(self, config: dict) -> dict:
+        self.distance_dataframe = pd.read_excel(config['MAP'],index_col='Estacao')
+        self.number_of_stations = self.distance_dataframe.columns.__len__() -1
+        self.start = config['START']
+        self.end = config['END']
+        config['DIM'] = self.number_of_stations -2
+        self.penality = (
+            float(config['PENALITY'])
+            if 'PENALITY' in config.keys()
+            else -1.0
+        )
+        config['COD'] = 'INT-PERM'
+        config['BOUND'] = '[(0,'+str(self.number_of_stations -2)+')]'
+        #config['BOUND'] = '['+','.join(['(0.0,0.9999999)' for _ in range(self.path_size)])+']'
+        possible_paths = list(range(0,self.number_of_stations))
+        possible_paths.remove(self.start)
+        possible_paths.remove(self.end)
+        zipped_path = [(i,j) for i,j in enumerate(possible_paths)]
+        self.stationDecoderDict = dict(zipped_path)
+        return config
+
+    def _distance(self,e1,e2):
+        '''return distance between stations'''
+        value = np.nan
+        if e1 < e2:
+            value = self.distance_dataframe.loc[e1,e2]
+        else:
+            value = self.distance_dataframe.loc[e2,e1]
+        return value
+    
+    def encode(self, solution) -> np.array:
+        ...
+
+    def decode(self, cromossomo: np.array) -> any:
+        solution = []
+        for gene, alelo in enumerate(cromossomo):
+        return solution
+
+
+    def objective_function(self, solution) -> any:
+        ...
+
+    def penality_function(self, solution) -> any:
+        ...
+
+    def fitness(self, solution) -> any:
+        ...
+
+    def generate_population(self, pop_size) -> list:
+        ...
+
+    def fit_max(self, solution) -> any:
+        ...
+
+    def fit_min(self, solution) -> any:
+        ...
