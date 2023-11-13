@@ -357,8 +357,6 @@ class Ambiente:
             )
 
 
-
-
     def run(self, step=10,show=False):
         if show is True:
             print("Execution started:") 

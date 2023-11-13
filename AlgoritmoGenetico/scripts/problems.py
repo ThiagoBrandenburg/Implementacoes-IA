@@ -35,30 +35,28 @@ class Problem:
 
 
 class Nrainhas:
-    max_colision:int
-    resolution:int
+    max_colision: int
+    resolution: int
+
     def __init__(self) -> None:
         self.max_colision = None
         self.resolution = None
 
-    
     def set_problem(self, config: dict) -> dict:
-        '''
+        """
         Comunicação entre o problema e o algoritmo.
         O ambiente passa uma configuração para o problema,
-        que seta as configurações, e as retorna 
+        que seta as configurações, e as retorna
         para o ambiente com parametros adicionais (caso necessário)
-        '''
+        """
         dim = int(config["DIM"])
         config["BOUND"] = (
             config["BOUND"] if "BOUND" in config.keys() else "[(0," + str(dim) + ")]"
         )
         self.penality = (
-            float(config['PENALITY'])
-            if 'PENALITY' in config.keys()
-            else -1.0
+            float(config["PENALITY"]) if "PENALITY" in config.keys() else -1.0
         )
-        self.resolution = int(config['DIM'])
+        self.resolution = int(config["DIM"])
         config["COD"] = "INT-PERM"
         self.max_colision = self._sumpa(1, self.resolution, self.resolution)
         return config
@@ -103,7 +101,9 @@ class Nrainhas:
 
     def fitness(self, solution):
         """Perfect solution is one, worst solution is zero"""
-        fit_value = (self.max_colision - self.objective_function(solution)) / self.max_colision
+        fit_value = (
+            self.max_colision - self.objective_function(solution)
+        ) / self.max_colision
         return fit_value
 
     def fit_max(self, solution):
@@ -249,6 +249,7 @@ class FabricaDeRadios:
 class NrainhasSum:
     max_colision: int
     max_fit_value: float
+
     def __init__(self) -> None:
         self.penality = -1
         self.resolution = None
@@ -256,22 +257,20 @@ class NrainhasSum:
         self.max_fit_value = None
 
     def set_problem(self, config: dict) -> dict:
-        '''
+        """
         Comunicação entre o problema e o algoritmo.
         O ambiente passa uma configuração para o problema,
-        que seta as configurações, e as retorna 
+        que seta as configurações, e as retorna
         para o ambiente com parametros adicionais (caso necessário)
-        '''
+        """
         dim = int(config["DIM"])
         config["BOUND"] = (
             config["BOUND"] if "BOUND" in config.keys() else "[(0," + str(dim) + ")]"
         )
         self.penality = (
-            float(config['PENALITY'])
-            if 'PENALITY' in config.keys()
-            else -1.0
+            float(config["PENALITY"]) if "PENALITY" in config.keys() else -1.0
         )
-        self.resolution = int(config['DIM'])
+        self.resolution = int(config["DIM"])
         config["COD"] = "INT-PERM"
         self.max_colision = self._sumpa(1, self.resolution, self.resolution)
         self.max_fit_value = self.objective_function(
@@ -316,9 +315,9 @@ class NrainhasSum:
             ]
         )
         return colisions
-    
+
     def penality_function(self, solution):
-        penality_value = self._number_of_colisions(solution)/self.max_colision
+        penality_value = self._number_of_colisions(solution) / self.max_colision
         return penality_value
 
     def objective_function(self, solucao: list[tuple[int, int]]):
@@ -326,8 +325,8 @@ class NrainhasSum:
         for coor in solucao:
             linha = coor[0] + 1
             coluna = coor[1] + 1
-            k =  coor[0]*self.resolution + coluna
-            #print('X:',coor[0],'y:',coor[1],'k',k)
+            k = coor[0] * self.resolution + coluna
+            # print('X:',coor[0],'y:',coor[1],'k',k)
             value += math.sqrt(k) if linha % 2 == 1 else math.log(k, 10)
         return value
 
@@ -339,13 +338,13 @@ class NrainhasSum:
 
     def fitness(self, solution):
         """Perfect solution is one, worst solution is zero"""
-        #print("max fit value:", self.max_fit_value)
-            
-        part1 = self.objective_function(solution) / self.max_fit_value
-        #print('part1',part1, 'fit(solution)=',self.objective_function(solution),'max_fit_value=',self.max_fit_value)
+        # print("max fit value:", self.max_fit_value)
 
-        part2 = (self.penality * self.penality_function(solution))
-        
+        part1 = self.objective_function(solution) / self.max_fit_value
+        # print('part1',part1, 'fit(solution)=',self.objective_function(solution),'max_fit_value=',self.max_fit_value)
+
+        part2 = self.penality * self.penality_function(solution)
+
         fit_value = part1 + part2
         return fit_value
 
@@ -364,22 +363,24 @@ class NrainhasSum:
         return matrix
 
 
-
 class Labirinto:
-    '''
+    """
     Codificação é um vetor de inteiros de 100 posições
     os movimentos são parado, direita, esquerda, cima, baixo
-    '''
+    """
+
     lab_map: np.ndarray
-    lab_resolution: tuple[int,int]
+    lab_resolution: tuple[int, int]
     path_size: int
-    start: tuple[int,int]
-    end: tuple[int,int]
+    start: tuple[int, int]
+    end: tuple[int, int]
+
     class Tile(Enum):
         WALL = 0
         PATH = 1
         START = 2
         END = 3
+
     class Move(Enum):
         STAND = 0
         UP = 1
@@ -388,53 +389,54 @@ class Labirinto:
         RIGHT = 4
 
     def __init__(self) -> None:
-
         self.lab_map = None
         self.lab_resolution = None
         self.path_size = None
-    
+
     def set_problem(self, config: dict) -> dict:
-        self.lab_map = np.array(config['MAP'])
+        self.lab_map = np.array(config["MAP"])
         self.lab_resolution = self.lab_map.shape
-        self.max_distance = self._euclidian_distance((0,0),self.lab_resolution)
-        self.path_size = config['DIM']
+        self.max_distance = self._euclidian_distance((0, 0), self.lab_resolution)
+        self.path_size = config["DIM"]
         self.penality = (
-            float(config['PENALITY'])
-            if 'PENALITY' in config.keys()
-            else -1.0
+            float(config["PENALITY"]) if "PENALITY" in config.keys() else -1.0
         )
         aux = np.where(self.lab_map == self.Tile.START.value)
         self.start = (aux[0][0], aux[1][0])
         aux = np.where(self.lab_map == self.Tile.END.value)
         self.end = (aux[0][0], aux[1][0])
-        config['BOUND'] = '['+','.join(['(0.0,0.9999999)' for _ in range(self.path_size)])+']'
+        config["BOUND"] = (
+            "[" + ",".join(["(0.0,0.9999999)" for _ in range(self.path_size)]) + "]"
+        )
         return config
-    
-    def _euclidian_distance(self,p1:tuple,p2:tuple):
-        return math.sqrt((p1[0] - p2[0])**2 + (p1[1]-p2[1])**2)
 
-    def next_tile(self,tile1,move):
-        i,j = tile1
+    def _euclidian_distance(self, p1: tuple, p2: tuple):
+        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+    def next_tile(self, tile1, move):
+        i, j = tile1
         match move:
             case self.Move.UP.value:
-                i-=1
+                i -= 1
             case self.Move.DOWN.value:
-                i+=1
+                i += 1
             case self.Move.LEFT.value:
-                j-=1
+                j -= 1
             case self.Move.RIGHT.value:
-                j+=1
-        return (i,j)
-    
-    def possible_moves(self,tile,history):
+                j += 1
+        return (i, j)
+
+    def possible_moves(self, tile, history):
         moves = []
         for move in self.Move:
-            next = self.next_tile(tile,move.value)
+            next = self.next_tile(tile, move.value)
             tile_value = self.lab_map[next[0]][next[1]]
-            if ((tile_value != self.Tile.WALL.value) 
-                and (next[0] > 0) 
+            if (
+                (tile_value != self.Tile.WALL.value)
+                and (next[0] > 0)
                 and (next[1] > 0)
-                and next not in history):
+                and next not in history
+            ):
                 moves.append(move.value)
         if len(moves) == 0:
             return [self.Move.STAND.value]
@@ -445,19 +447,19 @@ class Labirinto:
         current_tile = self.start
         solution = [current_tile]
         for alelo in cromossomo:
-            possibilites = self.possible_moves(current_tile,solution)
-            #print('len(possibilites)',len(possibilites),' alelo:',alelo)
-            chosen_pos = math.floor(len(possibilites)*alelo)
+            possibilites = self.possible_moves(current_tile, solution)
+            # print('len(possibilites)',len(possibilites),' alelo:',alelo)
+            chosen_pos = math.floor(len(possibilites) * alelo)
             chosen_move = possibilites[chosen_pos]
-            next_t = self.next_tile(current_tile,chosen_move)
+            next_t = self.next_tile(current_tile, chosen_move)
             solution.append(next_t)
             current_tile = next_t
         return solution
-    
+
     def encode(self, solution) -> np.array:
         pass
 
-    def _encode_move(self,tile1,tile2):
+    def _encode_move(self, tile1, tile2):
         if tile1[0] > tile2[0]:
             return self.Move.UP.value
         elif tile1[0] < tile2[0]:
@@ -468,22 +470,23 @@ class Labirinto:
             return self.Move.RIGHT.value
         else:
             return self.Move.STAND
-        
 
     def objective_function(self, solution) -> any:
-        value = self._euclidian_distance(solution[-1],self.end)
+        value = self._euclidian_distance(solution[-1], self.end)
         return value
 
-    def _path_size(self,solution) -> any:
-        value = sum([0.0 if move == self.Move.STAND.value else 1.0 for move in solution])
+    def _path_size(self, solution) -> any:
+        value = sum(
+            [0.0 if move == self.Move.STAND.value else 1.0 for move in solution]
+        )
         return value
 
     def penality_function(self, solution) -> any:
-        value = self._path_size(solution)/self.path_size
+        value = self._path_size(solution) / self.path_size
         return value
 
     def fitness(self, solution) -> any:
-        fit_value = 1.0- (self.objective_function(solution)/self.max_distance)
+        fit_value = 1.0 - (self.objective_function(solution) / self.max_distance)
         penality_value = self.penality_function(solution)
         value = fit_value + self.penality * penality_value
         return value
@@ -492,10 +495,15 @@ class Labirinto:
         return self.fitness(solution)
 
     def fit_min(self, solution) -> any:
-        return 1 -self.fitness(solution)
-    
-    def get_matrix(self,solution):
-        best_map = np.array([[1 if (i,j) in solution else 0 for j in range(self.lab_map.shape[1])] for i in range(self.lab_map.shape[0])])
+        return 1 - self.fitness(solution)
+
+    def get_matrix(self, solution):
+        best_map = np.array(
+            [
+                [1 if (i, j) in solution else 0 for j in range(self.lab_map.shape[1])]
+                for i in range(self.lab_map.shape[0])
+            ]
+        )
         total_map = best_map + self.lab_map
         return total_map
 
@@ -507,56 +515,61 @@ class Metro:
     def __init__(self) -> None:
         pass
 
+    def set_dataframe(self, config, index_col, sheet_name):
+        df = pd.read_excel(config["MAP"], index_col=index_col, sheet_name=sheet_name)
+        df.fillna(0.0, inplace=True)
+        df = df + df.transpose()
+        df.replace(0.0, np.inf, inplace=True)
+        for el in df.columns:
+            df.loc[el, el] = 0.0
+        return df
 
     def set_problem(self, config: dict) -> dict:
         print("UEPA")
-        self.distance_dataframe = pd.read_excel(config['MAP'],
-                                                index_col='Estacao',
-                                                sheet_name='distancia_real')
-        self.straight_distance_dataframe = pd.read_excel(config['MAP'],
-                                                         sheet_name='distancia_reta',
-                                                         index_col='Estacao')
-        self.number_of_stations = self.distance_dataframe.columns.__len__() -1
-        self.stations = list(self.distance_dataframe.columns[1:])
-        self.start = config['START']
-        self.end = config['END']
-        self.velocity = config['VELOCIDADE']
-        self.stop_time = 5/60
-        print(self.stations,self.start,self.end)
-        config['DIM'] = self.number_of_stations -2
-        self.penality = (
-            float(config['PENALITY'])
-            if 'PENALITY' in config.keys()
-            else -1.0
+        self.distance_dataframe = self.set_dataframe(
+            config=config, index_col="Estacao", sheet_name="distancia_real"
         )
-        config['COD'] = 'INT-PERM'
-        config['BOUND'] = '[(-1,'+str(self.number_of_stations -2)+')]'
-        #config['BOUND'] = '['+','.join(['(0.0,0.9999999)' for _ in range(self.path_size)])+']'
+        self.straight_distance_dataframe = self.set_dataframe(
+            config, index_col="Estacao", sheet_name="distancia_reta"
+        )
+        # self.distance_dataframe = pd.read_excel(config['MAP'],
+        #                                        index_col='Estacao',
+        #                                        sheet_name='distancia_real')
+        #
+        # self.straight_distance_dataframe = pd.read_excel(config['MAP'],
+        #                                                 sheet_name='distancia_reta',
+        #                                                 index_col='Estacao')
+        self.number_of_stations = self.distance_dataframe.columns.__len__() - 1
+        self.stations = list(self.distance_dataframe.columns[1:])
+        self.start = config["START"]
+        self.end = config["END"]
+        self.velocity = config["VELOCIDADE"]
+        self.stop_time = 5 / 60
+        print(self.stations, self.start, self.end)
+        config["DIM"] = self.number_of_stations - 1
+        self.penality = (
+            float(config["PENALITY"]) if "PENALITY" in config.keys() else -1.0
+        )
+        config["COD"] = "INT-PERM"
+        config["BOUND"] = "[(-1," + str(self.number_of_stations - 2) + ")]"
+        # config['BOUND'] = '['+','.join(['(0.0,0.9999999)' for _ in range(self.path_size)])+']'
         possible_paths = self.stations.copy()
         possible_paths.remove(self.start)
         possible_paths.remove(self.end)
-        zipped_path = [(i,j) for i,j in enumerate(possible_paths)]
+        zipped_path = [(i, j) for i, j in enumerate(possible_paths)]
         self.stationDecoderDict = dict(zipped_path)
         return config
 
-    def _distance(self,e1,e2):
-        '''return distance between stations'''
-        value = np.nan
-        if e1 < e2:
-            value = self.distance_dataframe.loc[e1,e2]
-        else:
-            value = self.distance_dataframe.loc[e2,e1]
+    def _distance(self, e1, e2):
+        """return distance between stations"""
+        value = self.distance_dataframe.loc[e1, e2]
         return value
 
-    def _straight_distance(self,e1,e2):
-        '''return distance between stations'''
-        value = np.nan
-        if e1 < e2:
-            value = self.straight_distance_dataframe.loc[e1,e2]
-        else:
-            value = self.straight_distance_dataframe.loc[e2,e1]
+    def _straight_distance(self, e1, e2):
+        """return distance between stations"""
+        value = self.straight_distance_dataframe.loc[e2, e1]
         return value
-    
+
     def encode(self, solution) -> np.array:
         ...
 
@@ -570,32 +583,33 @@ class Metro:
         solution.append(self.end)
         return solution
 
-
     def objective_function(self, solution) -> any:
-        '''Retorna o tempo de viagem em horas'''
-        tempo_de_parada = (len(solution) - 2)*self.stop_time
+        """Retorna o tempo de viagem em horas"""
+        tempo_de_parada = (len(solution) - 2) * self.stop_time
         tempo_de_trajeto = 0.0
         pivot = self.start
         for estacao in solution[1:-1]:
-            value = self._distance(pivot,estacao)
-            print(type(value),value)
-            if np.isnan(value):
-                print('entroo')
-                value = self._straight_distance(pivot,estacao)
-                print('teste:',value)
+            value = self._distance(pivot, estacao)
+            if np.isinf(value):
+                value = self._straight_distance(pivot, estacao)
             tempo_de_trajeto += value
             pivot = estacao
         tempo_de_trajeto /= self.velocity
-        print('tempos',tempo_de_parada,tempo_de_trajeto)
         tempo_total = tempo_de_parada + tempo_de_trajeto
         return tempo_total
 
-
     def penality_function(self, solution) -> any:
-        ...
+        value = sum(
+            [
+                1.0 if np.isinf(self._distance(solution[i], solution[i + 1])) else 0.0
+                for i in range(len(solution) - 1)
+            ]
+        )/self.number_of_stations
+        return value
 
     def fitness(self, solution) -> any:
-        ...
+        value = (1-self.objective_function(solution))/8 + self.penality*self.penality_function(solution)
+        return value
 
     def generate_population(self, pop_size) -> list:
         ...
