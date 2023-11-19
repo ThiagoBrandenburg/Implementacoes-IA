@@ -145,9 +145,9 @@ class Ambiente:
                 individuo = np.array(
                     [
                         random.random()
-                        * (self.bound_size[pos][1] - self.bound_size[pos][0])
-                        + self.bound_size[pos][0]
-                        for _ in range(dim)
+                        * (self.bound_size[i][1] - self.bound_size[i][0])
+                        + self.bound_size[i][0]
+                        for i in range(dim)
                     ]
                 )
                 return individuo

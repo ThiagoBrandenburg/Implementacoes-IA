@@ -511,7 +511,7 @@ class Labirinto:
         pass
 
 
-class Metro:
+class MetroOld:
     def __init__(self) -> None:
         pass
 
@@ -590,7 +590,7 @@ class Metro:
         pivot = self.start
         for estacao in solution[1:-1]:
             value = self._distance(pivot, estacao)
-            if np.isinf(value):
+            if np.isnan(value):
                 value = self._straight_distance(pivot, estacao)
             tempo_de_trajeto += value
             pivot = estacao
@@ -601,7 +601,7 @@ class Metro:
     def penality_function(self, solution) -> any:
         value = sum(
             [
-                1.0 if np.isinf(self._distance(solution[i], solution[i + 1])) else 0.0
+                1.0 if np.isnan(self._distance(solution[i], solution[i + 1])) else 0.0
                 for i in range(len(solution) - 1)
             ]
         )/self.number_of_stations
@@ -609,6 +609,119 @@ class Metro:
 
     def fitness(self, solution) -> any:
         value = (1-self.objective_function(solution))/8 + self.penality*self.penality_function(solution)
+        return value
+
+    def generate_population(self, pop_size) -> list:
+        ...
+
+    def fit_max(self, solution) -> any:
+        ...
+
+    def fit_min(self, solution) -> any:
+        ...
+
+
+class MetroNew:
+    def __init__(self) -> None:
+        pass
+
+    def set_dataframe(self, config, index_col, sheet_name):
+        df = pd.read_excel(config["MAP"], index_col=index_col, sheet_name=sheet_name)
+        df.fillna(0.0, inplace=True)
+        df = df + df.transpose()
+        df.replace(0.0, np.nan, inplace=True)
+        for el in df.columns:
+            df.loc[el, el] = 0.0
+        return df
+
+    def set_problem(self, config: dict) -> dict:
+        self.distance_dataframe = self.set_dataframe(
+            config=config, index_col="Estacao", sheet_name="distancia_real"
+        )
+        self.straight_distance_dataframe = self.set_dataframe(
+            config, index_col="Estacao", sheet_name="distancia_reta"
+        )
+        self.max_distance = self.distance_dataframe.max().max()
+        self.number_of_stations = self.distance_dataframe.columns.__len__() - 1
+        self.path_size = self.number_of_stations
+        self.stations = list(self.distance_dataframe.columns)#[1:]
+        self.start = config["START"]
+        self.end = config["END"]
+        self.velocity = config["VELOCIDADE"]
+        self.stop_time = 5 / 60
+        print(self.stations, self.start, self.end)
+        config["DIM"] = self.number_of_stations - 1
+        self.penality = (
+            float(config["PENALITY"]) if "PENALITY" in config.keys() else -1.0
+        )
+        config["COD"] = "REAL"
+        config["BOUND"] = (
+            "[" + ",".join(["(0.0,0.9999999)" for _ in range(config["DIM"])]) + "]"
+        )
+        self.neighboors = {station:[] for station in self.stations}
+        for origin in self.stations:
+            for destination in self.stations:
+                distance = self._distance(origin,destination)
+                if not np.isnan(distance) and origin != destination:
+                    self.neighboors[origin].append(destination)
+        return config
+
+    def _distance(self, e1, e2):
+        """return distance between stations"""
+        value = self.distance_dataframe.loc[e1, e2]
+        return value
+
+    def _straight_distance(self, e1, e2):
+        """return distance between stations"""
+        value = self.straight_distance_dataframe.loc[e2, e1]
+        return value
+
+    def encode(self, solution) -> np.array:
+        ...
+
+    def decode(self, cromossomo: np.array) -> any:
+        current_station = self.start
+        solution = [current_station]
+        #Cria um mapa de referencia das estações que já foram passadas
+        check_map = {station: False for station in self.stations}
+        check_map[current_station] = True
+        for alelo in cromossomo:
+            neighboors = [n for n in self.neighboors[current_station] if check_map[n] is False]
+            if len(neighboors) == 0:
+                break
+            # print('len(neighboors)',len(neighboors),' alelo:',alelo)
+            chosen_pos = math.floor(len(neighboors) * alelo)
+            chosen_neighboor = neighboors[chosen_pos]
+            solution.append(chosen_neighboor)
+            current_station = chosen_neighboor
+            check_map[chosen_neighboor] = True
+            if current_station == self.end:
+                break
+        return solution
+
+    def objective_function(self, solution) -> any:
+        value = self._distance(solution[-1],self.end)
+        return value
+
+
+    def penality_function(self, solution) -> any:
+        tempo_de_parada = (len(solution) - 2) * self.stop_time
+        tempo_de_trajeto = 0.0
+        pivot = self.start
+        for estacao in solution[1:-1]:
+            value = self._distance(pivot, estacao)
+            if np.isnan(value):
+                value = self._straight_distance(pivot, estacao)
+            tempo_de_trajeto += value
+            pivot = estacao
+        tempo_de_trajeto /= self.velocity
+        tempo_total = tempo_de_parada + tempo_de_trajeto
+        return tempo_total
+
+    def fitness(self, solution) -> any:
+        objetive_factor = self.objective_function(solution)/self.max_distance
+        penality_factor = self.penality_function(solution)
+        value = (1-objetive_factor) + self.penality*penality_factor
         return value
 
     def generate_population(self, pop_size) -> list:
