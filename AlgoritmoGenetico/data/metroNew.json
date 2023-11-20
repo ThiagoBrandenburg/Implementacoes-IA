@@ -3,7 +3,7 @@
     "POP":30,
     "ITERATIONS":1000,
     "TYPE":"METRO",
-    "MUTATION_RATE":0.01,
+    "MUTATION_RATE":0.1,
     "CROSSOVER_RATE":0.8,
     "PENALITY":-1,
     "ELITISM":1,

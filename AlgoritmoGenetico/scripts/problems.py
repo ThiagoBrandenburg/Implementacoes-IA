@@ -673,7 +673,7 @@ class MetroNew:
 
     def _straight_distance(self, e1, e2):
         """return distance between stations"""
-        value = self.straight_distance_dataframe.loc[e2, e1]
+        value = self.straight_distance_dataframe.loc[e1,e2]
         return value
 
     def encode(self, solution) -> np.array:
@@ -701,8 +701,9 @@ class MetroNew:
 
     def objective_function(self, solution) -> any:
         value = self._distance(solution[-1],self.end)
+        if np.isnan(value):
+            value = self._straight_distance(solution[-1],self.end)*2
         return value
-
 
     def penality_function(self, solution) -> any:
         tempo_de_parada = (len(solution) - 2) * self.stop_time
@@ -719,7 +720,7 @@ class MetroNew:
         return tempo_total
 
     def fitness(self, solution) -> any:
-        objetive_factor = self.objective_function(solution)/self.max_distance
+        objetive_factor = self.objective_function(solution)
         penality_factor = self.penality_function(solution)
         value = (1-objetive_factor) + self.penality*penality_factor
         return value
