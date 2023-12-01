@@ -722,7 +722,7 @@ class MetroNew:
     def fitness(self, solution) -> any:
         objetive_factor = self.objective_function(solution)
         penality_factor = self.penality_function(solution)
-        value = (1-objetive_factor) + self.penality*penality_factor
+        value = (1-objetive_factor/self.max_distance) + self.penality*penality_factor
         return value
 
     def generate_population(self, pop_size) -> list:

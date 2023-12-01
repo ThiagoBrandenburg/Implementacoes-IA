@@ -1,16 +1,16 @@
 {
     "COD":"REAL",
-    "POP":30,
-    "ITERATIONS":1000,
+    "POP":10,
+    "ITERATIONS":100,
     "TYPE":"METRO",
     "MUTATION_RATE":0.1,
     "CROSSOVER_RATE":0.8,
-    "PENALITY":-1,
+    "PENALITY":-0.5,
     "ELITISM":1,
     "WIN_RATE":0.9,
     "DIZIMATION_INTERVAL":100,
     "VELOCIDADE":40,
-    "START":"E7",
-    "END":"E14",
+    "START":"E14",
+    "END":"E7",
     "MAP": "data/metro.xlsx"
 }
