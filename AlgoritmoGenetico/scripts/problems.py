@@ -625,14 +625,21 @@ class MetroNew:
     def __init__(self) -> None:
         pass
 
-    def set_dataframe(self, config, index_col, sheet_name):
+    def set_dataframe(self, config, index_col, sheet_name,zero_diagonal=True):
         df = pd.read_excel(config["MAP"], index_col=index_col, sheet_name=sheet_name)
         df.fillna(0.0, inplace=True)
         df = df + df.transpose()
         df.replace(0.0, np.nan, inplace=True)
-        for el in df.columns:
-            df.loc[el, el] = 0.0
+        if zero_diagonal is True:
+            for el in df.columns:
+                df.loc[el, el] = 0.0
         return df
+    
+    def _set_df(self,df:pd.DataFrame):
+        df_trans = df.transpose()
+        df = df.where(~pd.isna(df),df_trans)
+        return df
+
 
     def set_problem(self, config: dict) -> dict:
         self.distance_dataframe = self.set_dataframe(
@@ -641,6 +648,10 @@ class MetroNew:
         self.straight_distance_dataframe = self.set_dataframe(
             config, index_col="Estacao", sheet_name="distancia_reta"
         )
+        self.lines_dataframe = pd.read_excel(
+            config['MAP'], index_col="Estacao", sheet_name='linhas'
+            )
+        self.lines_dataframe = self._set_df(self.lines_dataframe)
         self.max_distance = self.distance_dataframe.max().max()
         self.number_of_stations = self.distance_dataframe.columns.__len__() - 1
         self.path_size = self.number_of_stations
@@ -649,7 +660,7 @@ class MetroNew:
         self.end = config["END"]
         self.velocity = config["VELOCIDADE"]
         self.stop_time = 5 / 60
-        print(self.stations, self.start, self.end)
+        #print(self.stations, self.start, self.end)
         config["DIM"] = self.number_of_stations - 1
         self.penality = (
             float(config["PENALITY"]) if "PENALITY" in config.keys() else -1.0
@@ -674,6 +685,10 @@ class MetroNew:
     def _straight_distance(self, e1, e2):
         """return distance between stations"""
         value = self.straight_distance_dataframe.loc[e1,e2]
+        return value
+
+    def _line(self,e1,e2):
+        value = self.lines_dataframe.loc[e1,e2]
         return value
 
     def encode(self, solution) -> np.array:
@@ -705,12 +720,17 @@ class MetroNew:
             value = self._straight_distance(solution[-1],self.end)*2
         return value
 
+
     def penality_function(self, solution) -> any:
-        tempo_de_parada = (len(solution) - 2) * self.stop_time
+        tempo_de_parada = 0.0
         tempo_de_trajeto = 0.0
         pivot = self.start
+        pivot_line = self._line(self.start,solution[1])
         for estacao in solution[1:-1]:
             value = self._distance(pivot, estacao)
+            current_line = self._line(pivot, estacao)
+            if current_line != pivot_line:
+                tempo_de_parada += self.stop_time
             if np.isnan(value):
                 value = self._straight_distance(pivot, estacao)
             tempo_de_trajeto += value
@@ -724,6 +744,7 @@ class MetroNew:
         penality_factor = self.penality_function(solution)
         value = (1-objetive_factor/self.max_distance) + self.penality*penality_factor
         return value
+
 
     def generate_population(self, pop_size) -> list:
         ...
